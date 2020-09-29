@@ -1,0 +1,22 @@
+#!env ruby
+
+gem 'unicode-name'
+require "unicode/name"
+require "unicode/types"
+
+begin
+
+  while data = STDIN.readline
+    data.strip!
+    puts "     Characters: #{data.chars.join(' ')}"
+    puts "Codepoints (10): #{data.codepoints.join(' ')}"
+    puts "Codepoints (16): #{data.codepoints.map { |x| x.to_s(16) }.join(' ')}"
+    puts "          Names:"
+    data.chars.each do |x|
+      puts "                 #{Unicode::Name.of(x)} (#{Unicode::Types.type(x)})"
+    end
+  end
+rescue Interrupt
+  # exit
+end
+

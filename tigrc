@@ -1,0 +1,15 @@
+bind status + !git commit --amend
+bind status I !git add -p %(file)
+bind stage C !git commit
+set vertical-split = true
+set split-view-width = 75%
+set mouse = yes
+set mouse-scroll = 3
+set mouse-wheel-cursor = yes
+bind status <Ctrl-r> !sh -c "echo %(file) >> .gitignore && vi .gitignore"
+set editor-line-number = no
+set log-options = --show-signature
+set diff-options = --show-signature
+
+bind main R !git rebase -i %(commit)^
+bind diff R !git rebase -i %(commit)^

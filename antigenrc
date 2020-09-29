@@ -1,0 +1,15 @@
+antigen use oh-my-zsh
+
+#antigen bundle github
+
+antigen bundle ELLIOTTCABLE/rbenv.plugin.zsh
+
+antigen bundle git
+
+antigen bundle valentinocossar/vscode
+antigen bundle unixorn/rake-completion.zshplugin
+antigen bundle zsh-users/zsh-autosuggestions
+#antigen bundle nojhan/liquidprompt
+antigen bundle junegunn/fzf
+
+antigen apply

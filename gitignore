@@ -1,0 +1,67 @@
+# xcode noise
+*.mode1v3
+*.pbxuser
+*.perspective
+*.perspectivev3
+*.pyc
+*~.nib/
+build/*
+
+*.xcodeproj/xcuserdata/*
+*.xcodeproj/project.xcworkspace/xcuserdata/*
+
+# Textmate - if you build your xcode projects with it
+*.tm_build_errors
+
+# old skool
+.svn
+
+# osx noise
+.DS_Store
+
+# oh my zsh stuff
+.rake_tasks~
+
+
+*.xccheckout
+
+# Idea
+.idea/
+.rakeTasks
+*.iml
+
+
+Gemfile.dev
+Gemfile.dev.lock
+
+railways.cache
+
+.powder
+.nospring
+.spring
+.yardoc
+
+.powswitch
+.deps.yml
+.unstable-master.yml
+
+.profile.d/github.sh
+.vagrant/*
+
+.vscode
+
+.byebug_history
+
+/bisect.yml
+/tests.txt
+/batch_log.log
+
+# Temporary stuff
+public/attachments
+.env.muxp
+.overmind.env
+
+tmux-client-*.log
+tmux-server-*.log
+
+.envrc
