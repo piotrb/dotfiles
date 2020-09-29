@@ -1,0 +1,22 @@
+#!env ruby
+
+mux_cmd = "tmux"
+#mux_cmd = "wemux"
+
+ENV.delete "RBENV_VERSION"
+
+if ARGV[0]
+  session_name = ARGV[0]
+  puts "using session name from args: #{session_name}"
+else
+  session_name = File.basename(Dir.getwd)
+  puts "guessing session name from cwd: #{session_name}"
+end
+
+#if session_name
+  has_session = system("#{mux_cmd} has-session -t #{session_name} 2>/dev/null")
+  has_session ? exec("#{mux_cmd} attach-session -t #{session_name}") : exec("#{mux_cmd} new-session -s #{session_name}")
+#else
+  #has_session = system("#{mux_cmd} has-session 2>/dev/null")
+  #has_session ? exec("#{mux_cmd} attach-session") : exec("#{mux_cmd} new-session")
+#end

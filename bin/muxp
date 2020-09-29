@@ -1,0 +1,121 @@
+#!env ruby
+require 'yaml'
+require 'shellwords'
+require 'active_support/all'
+
+if File.exist?(".env.muxp")
+  File.open(".env.muxp") do |fh|
+    fh.each_line do |line|
+      unless line.strip.empty? || line.strip =~ /^#/
+        k, v = line.rstrip.split("=", 2)
+        ENV[k] = v
+      end
+    end
+  end
+end
+
+ignored_tasks = %w(web)
+ignored_tasks = [] if ENV['WEB']
+
+if ENV['MUXP_IGNORE']
+  ignored_tasks += ENV['MUXP_IGNORE'].split(",")
+end
+
+project = File.basename(Dir.getwd)
+
+def load_tasks
+  if File.exist?("Procfile")
+    YAML.load_file("Procfile").map { |k,v|
+      {
+        name: k,
+        cwd: Dir.getwd,
+        command: v,
+      }
+    }
+  else
+    []
+  end
+end
+
+tasks = load_tasks
+tasks.reject! { |t| t[:name].in?(ignored_tasks) }
+
+def session_running?(project)
+  system("tmux has-session -t #{project.inspect} 2>/dev/null")
+  $?.success?
+end
+
+def tmux_bin
+  `which tmux`.strip
+end
+
+def tmux(cmd, raise_on_error: true, mode: :system)
+  case mode
+  when :system
+    system("tmux #{cmd}")
+    unless $?.success?
+      raise("failed") if raise_on_error
+      return false
+    end
+    true
+  when :exec
+    exec tmux_bin, *Shellwords.shellwords(cmd)
+  end
+end
+
+def env_for_task(name)
+  ENV.keys.grep(/^MUXP_#{name}_/).each do |key|
+    dst_key = key.gsub(/^MUXP_#{name}_/, '')
+    value = ENV[key]
+    tmux %{send-keys "export #{dst_key}=#{value}" Enter}
+  end
+end
+
+if session_running?(project)
+  puts "Killing existing session ..."
+  tmux(%{kill-session -t "#{project}"})
+end
+
+puts "Starting new session ..."
+tmux %{new-session -s "#{project}" -n "#{project} Main" -d}
+tmux %{send-keys "setpane shell" Enter}
+tmux %{send-keys "cd / && cd #{Dir.getwd.inspect}" Enter}
+
+# tmux %{set-window-option remain-on-exit on}
+tmux %{set mouse on}
+
+if tasks.length > 0
+  task = tasks.pop
+  # keys = tasks.keys
+  # first_key = keys.pop
+  tmux %{split-window -v -p 30 -t "#{project}:1"}
+  tmux %{send-keys "setpane #{task[:name].inspect}" Enter}
+  env_for_task(task[:name])
+  tmux %{send-keys "cd / && cd #{task[:cwd].inspect}" Enter}
+  tmux %{send-keys #{task[:command].inspect} Enter}
+  tasks.each do |task|
+    tmux %{split-window -h -t "#{project}:1"}
+    tmux %{send-keys "setpane #{task[:name].inspect}" Enter}
+    env_for_task(task[:name])
+    tmux %{send-keys "cd / && cd #{task[:cwd].inspect}" Enter}
+    tmux %{send-keys #{task[:command].inspect} Enter}
+  end
+end
+
+if File.exist?("log/development.log")
+  tmux %{new-window -t "#{project}:2" -n "Log"}
+  tmux %{send-keys "setpane Log" Enter}
+  tmux %{send-keys "tail -n 0 -f log/development.log" Enter}
+
+  tmux %{select-window -t "#{project}:1"}
+end
+
+puts "\e]0;tmux: #{project}\007"
+
+if ENV['MUXP_CC_MODE']
+  extra = "-CC"
+else
+  extra = ""
+end
+
+tmux %{#{extra} attach -t "#{project}"}#, mode: :exec

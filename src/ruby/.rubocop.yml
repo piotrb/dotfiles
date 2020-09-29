@@ -1,0 +1,30 @@
+require:
+  - standard
+
+inherit_gem:
+  standard:
+    - config/base.yml
+
+Metrics/LineLength:
+  Max: 120
+
+Layout/CaseIndentation:
+  Enabled: true
+
+Lint/EmptyWhen:
+  Enabled: false
+
+Lint/Void:
+  Enabled: false
+
+# AllCops:
+#   Exclude:
+#     - !ruby/regexp /bin\/.+(?<!\.rb)$/
+#     - "db/migrate/*.rb"
+#     - "db/schema.rb"
+#     - "Gemfile"
+#     - "log/**/*"
+#     - "node_modules/**/*"
+#     - "public/**/*"
+#     - "storage/**/*"
+#     - "tmp/**/*"

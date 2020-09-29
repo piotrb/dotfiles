@@ -1,0 +1,65 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activesupport (6.0.2.1)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 0.7, < 2)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
+      zeitwerk (~> 2.2)
+    awesome_print (1.8.0)
+    concurrent-ruby (1.1.6)
+    equatable (0.6.1)
+    i18n (1.8.2)
+      concurrent-ruby (~> 1.0)
+    kramdown (1.16.2)
+    minitest (5.14.0)
+    necromancer (0.5.1)
+    paint (2.2.0)
+    pastel (0.7.3)
+      equatable (~> 0.6)
+      tty-color (~> 0.5)
+    rouge (3.16.0)
+    strings (0.1.8)
+      strings-ansi (~> 0.1)
+      unicode-display_width (~> 1.5)
+      unicode_utils (~> 1.4)
+    strings-ansi (0.2.0)
+    thread_safe (0.3.6)
+    tty-color (0.5.1)
+    tty-cursor (0.7.1)
+    tty-markdown (0.6.0)
+      kramdown (~> 1.16.2)
+      pastel (~> 0.7.2)
+      rouge (~> 3.3)
+      strings (~> 0.1.4)
+      tty-color (~> 0.4)
+      tty-screen (~> 0.6)
+    tty-prompt (0.21.0)
+      necromancer (~> 0.5.0)
+      pastel (~> 0.7.0)
+      tty-reader (~> 0.7.0)
+    tty-reader (0.7.0)
+      tty-cursor (~> 0.7)
+      tty-screen (~> 0.7)
+      wisper (~> 2.0.0)
+    tty-screen (0.7.1)
+    tzinfo (1.2.6)
+      thread_safe (~> 0.1)
+    unicode-display_width (1.6.1)
+    unicode_utils (1.4.0)
+    wisper (2.0.1)
+    zeitwerk (2.3.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport
+  awesome_print
+  paint
+  tty-markdown
+  tty-prompt
+
+BUNDLED WITH
+   1.17.2

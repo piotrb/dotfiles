@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+# this is an auto-generated stub for ruby executables
+
+require_relative '../src/ruby/init'
+execute_command(:release_it_rb, ARGV)

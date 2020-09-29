@@ -1,0 +1,17 @@
+#!env ruby
+
+map = {}
+
+Dir['**/.ruby-version'].each do |file|
+  dir = File.dirname(file)
+  version = File.read(file).strip
+  map[Gem::Version.new(version)] ||= []
+  map[Gem::Version.new(version)] << dir
+end
+
+map.keys.sort.each do |version|
+  puts "#{version}:"
+  map[version].each do |dir|
+    puts "  #{dir}"
+  end
+end
