@@ -1,6 +1,5 @@
 #!/bin/bash - 
-if [[ `uname` = 'Linux' ]]; then
-  echo -n "[X11]"
-  export DISPLAY=:1
-fi
+# if [[ `uname` = 'Linux' ]]; then
+#   export DISPLAY=:1
+# fi
 
