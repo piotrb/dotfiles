@@ -31,8 +31,9 @@ brew 'tmux'
 brew 'overmind'
 brew 'postgresql', restart_service: true
 brew 'ruby-build'
-brew 'rbenv'
-brew 'rbenv-gemset'
+# brew 'rbenv'
+# brew 'rbenv-gemset'
+brew 'chruby'
 brew 'redis', restart_service: true
 brew 'siege'
 brew 'starship', args: ['HEAD']

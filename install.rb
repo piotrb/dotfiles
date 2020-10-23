@@ -22,7 +22,8 @@ plan do
   link '~/.gemrc', from: 'gemrc'
 
   # Shared Shell
-  link '~/.profile.d', from: 'profile.d'
+  link '~/.profile.rc.d', from: 'profile.rc.d'
+  link '~/.profile.env.d', from: 'profile.env.d'
 
   # Bash
   link '~/.bash_profile', from: 'bash_profile'
@@ -35,6 +36,7 @@ plan do
   clone 'https://github.com/zsh-users/antigen.git', '~/.antigen/source'
   link '~/.antigenrc', from: 'antigenrc'
   link '~/.zshrc', from: 'zshrc'
+  link '~/.zshenv', from: 'zshenv'
 
   # vim
   dir '~/.vim/bundle'

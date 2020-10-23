@@ -17,8 +17,8 @@ if [ -d /etc/profile.d ]; then
 fi
 
 # load profile scripts
-if [ -d $HOME/.profile.d ]; then
-  for i in $HOME/.profile.d/*.(zsh|sh); do
+if [ -d $HOME/.profile.rc.d ]; then
+  for i in $HOME/.profile.rc.d/*.(zsh|sh); do
     if [ -r $i ]; then
       . $i
     fi

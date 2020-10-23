@@ -4,6 +4,7 @@ require_relative './_common'
 
 class BrewPlanner
   attr_reader :entries
+
   def initialize(brewfile)
     @entries = BrewfileDSL.read(brewfile)
   end
@@ -87,7 +88,9 @@ module BrewModule
 
   def evaluate(brewfile)
     brew_plan = BrewPlanner.new(brewfile).plan
-    plan << [:brew, brew_plan] unless brew_plan.empty?
+    with_plan do |plan|
+      plan << [:brew, brew_plan] unless brew_plan.empty?
+    end
   end
 
   def run(brew_plan)

@@ -14,3 +14,16 @@ alias pry-remote="bundle_wrapper pry-remote"
 alias pry="bundle_wrapper pry"
 
 export SPEC_OPTS=--color
+
+source /usr/local/opt/chruby/share/chruby/chruby.sh
+source /usr/local/opt/chruby/share/chruby/auto.sh
+
+#export RUBIES=(~/.rbenv/versions/*)
+
+function chruby_install() {
+  ruby-build $1 /opt/rubies/$1
+}
+
+export RUBIES=(
+  /opt/rubies/*
+)

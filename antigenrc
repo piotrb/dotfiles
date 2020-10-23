@@ -2,7 +2,7 @@ antigen use oh-my-zsh
 
 #antigen bundle github
 
-antigen bundle ELLIOTTCABLE/rbenv.plugin.zsh
+#antigen bundle ELLIOTTCABLE/rbenv.plugin.zsh
 
 antigen bundle git
 

@@ -65,3 +65,4 @@ tmux-client-*.log
 tmux-server-*.log
 
 .envrc
+/TAGS
