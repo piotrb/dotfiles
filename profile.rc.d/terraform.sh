@@ -1,7 +1,6 @@
 #!/bin/bash - 
 
 function tf() {
-	set -x
 	cmd_args=( "$@" )
 	if [ -z "$MUX_TF_AUTH_WRAPPER" ]; then
 		terraform ${cmd_args[@]}
