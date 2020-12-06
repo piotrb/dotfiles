@@ -33,7 +33,7 @@ class BrewPlanner
   end
 
   def all_packages
-    @all_brews ||= `HOMEBREW_NO_AUTO_UPDATE=1 brew list --full-name`.strip.split("\n")
+    @all_brews ||= `HOMEBREW_NO_AUTO_UPDATE=1 brew list --full-name --formulae`.strip.split("\n")
   end
 
   def all_casks
