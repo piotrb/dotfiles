@@ -14,12 +14,12 @@ brew 'direnv'
 brew 'gh'
 # brew 'ghostscript'
 brew 'git'
-brew 'git-gui'
+# brew 'git-gui'
 brew 'git-lfs'
-brew 'gnupg', link: false
+# brew 'gnupg', link: false
 brew 'go'
 # brew 'goreleaser'
-brew 'imagemagick'
+# brew 'imagemagick'
 brew 'libgit2'
 brew 'memcached', restart_service: true
 brew 'neovim'
