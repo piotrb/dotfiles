@@ -12,15 +12,14 @@ tap 'puma/puma'
 brew 'awscli'
 brew 'direnv'
 brew 'gh'
-brew 'ghostscript'
+# brew 'ghostscript'
 brew 'git'
 brew 'git-gui'
 brew 'git-lfs'
 brew 'gnupg', link: false
 brew 'go'
-brew 'goreleaser'
+# brew 'goreleaser'
 brew 'imagemagick'
-brew 'jemalloc'
 brew 'libgit2'
 brew 'memcached', restart_service: true
 brew 'neovim'
@@ -29,16 +28,16 @@ brew 'node-build', args: ['HEAD']
 brew 'nodenv'
 brew 'tmux'
 brew 'overmind'
-brew 'postgresql', restart_service: true
+# brew 'postgresql', restart_service: true
 brew 'ruby-build'
 brew 'rbenv'
-brew 'chruby'
+# brew 'chruby'
 brew 'redis', restart_service: true
-brew 'siege'
+# brew 'siege'
 brew 'starship', args: ['HEAD']
 brew 'terminal-notifier'
 brew 'terraform-docs'
-brew 'terraform@0.12', link: true
+brew 'terraform@0.13', link: true
 brew 'tflint'
 brew 'the_platinum_searcher'
 brew 'tig'
