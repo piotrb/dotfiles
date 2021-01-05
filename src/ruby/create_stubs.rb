@@ -30,9 +30,9 @@ puts "Found #{existing.length} existing stubs ..."
 puts ""
 puts "Updating stubs ..."
 
-Dir["commands/*.rb"].each do |cmd|
-  ext = File.extname(cmd)
-  script_name = File.basename(cmd, ext)
+Dir["commands/*/main.rb"].each do |cmd|
+  path = File.dirname(cmd)
+  script_name = File.basename(path)
   exe_name = script_name.tr("_", "-")
 
   body = render_stub(script_name: script_name, env_location: env_location)
@@ -41,18 +41,6 @@ Dir["commands/*.rb"].each do |cmd|
   existing -= [exe_name]
   File.open("../../bin/#{exe_name}", "w") { |fh| fh.write(body) }
   FileUtils.chmod 0o755, "../../bin/#{exe_name}"
-end
-
-Dir["commands/*/main.rb"].each do |cmd|
-  path = File.dirname(cmd)
-  script_name = File.basename(path)
-
-  body = render_stub(script_name: script_name, env_location: env_location)
-
-  puts "writing #{script_name} ..."
-  existing -= [script_name]
-  File.open("../../bin/#{script_name}", "w") { |fh| fh.write(body) }
-  FileUtils.chmod 0o755, "../../bin/#{script_name}"
 end
 
 if existing.length > 0

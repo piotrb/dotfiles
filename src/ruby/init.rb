@@ -49,18 +49,11 @@ def load_gemfile(fn)
   end
 end
 
-def load_command_v1(name, args)
-  require_relative "commands/#{name}"
-  klass = "Commands::#{name.to_s.camelcase}".constantize
-  klass.init if klass.respond_to? :init
-  klass.run(args)
-end
-
 def camelize(string)
   string.split("_").map(&:capitalize).join
 end
 
-def load_command_v2(name, args)
+def load_command(name, args)
   v2_path = File.expand_path("commands/#{name}/main.rb", __dir__)
   runner_class = Class.new
   Commands.const_set(camelize(name.to_s), runner_class)
@@ -70,24 +63,8 @@ def load_command_v2(name, args)
   runner.run(args)
 end
 
-def get_cmd_mode(name)
-  v2_path = File.expand_path("commands/#{name}/main.rb", __dir__)
-  v1_path = File.expand_path("commands/#{name}.rb", __dir__)
-  return :v1 if File.exist?(v1_path)
-  return :v2 if File.exist?(v2_path)
-end
-
 def execute_command(name, args)
-  mode = get_cmd_mode(name)
-
-  case mode
-  when :v1
-    load_gemfile(File.expand_path("deps/#{name}.gemfile", __dir__))
-  when :v2
-    load_gemfile(File.expand_path("commands/#{name}/Gemfile", __dir__))
-  else
-    raise "don't know how to get deps for mode: #{mode.inspect}"
-  end
+  load_gemfile(File.expand_path("commands/#{name}/Gemfile", __dir__))
 
   require_relative "lib/command_helpers"
 
@@ -95,12 +72,5 @@ def execute_command(name, args)
   gem "activesupport"
   require "active_support/all"
 
-  case mode
-  when :v1
-    load_command_v1(name, args)
-  when :v2
-    load_command_v2(name, args)
-  else
-    raise "don't know how to run command mode: #{mode.inspect}"
-  end
+  load_command(name, args)
 end
