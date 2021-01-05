@@ -1,5 +1,6 @@
 def init
   require_relative "../../lib/cri_command_support"
+  require "yaml"
   extend CriCommandSupport
 end
 
@@ -11,13 +12,5 @@ end
 def build_root_cmd
   root_cmd = define_cmd("bundlex", summary: "Bundle Extensions", help: true)
 
-  root_cmd.add_command(outdated_cmd)
-end
-
-def outdated_cmd
-  define_cmd("outdated") do
-    require_relative "./outdated"
-    OutdatedCmd.init
-    OutdatedCmd.run([])
-  end
+  root_cmd.add_command(define_file_cmd("outdated", dir: __dir__))
 end

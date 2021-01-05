@@ -53,11 +53,15 @@ def camelize(string)
   string.split("_").map(&:capitalize).join
 end
 
-def load_command(name, args)
-  v2_path = File.expand_path("commands/#{name}/main.rb", __dir__)
+def load_command(into:, name:, path:)
   runner_class = Class.new
-  Commands.const_set(camelize(name.to_s), runner_class)
-  runner_class.class_eval(File.read(v2_path), v2_path, 1)
+  into.const_set(camelize(name.to_s), runner_class)
+  runner_class.class_eval(File.read(path), path, 1)
+  runner_class
+end
+
+def run_command_file(path:, name:, args:, load_into:)
+  runner_class = load_command(into: load_into, name: name, path: path)
   runner = runner_class.new
   runner.init if runner.respond_to?(:init)
   runner.run(args)
@@ -72,5 +76,6 @@ def execute_command(name, args)
   gem "activesupport"
   require "active_support/all"
 
-  load_command(name, args)
+  v2_path = File.expand_path("commands/#{name}/main.rb", __dir__)
+  run_command_file(path: v2_path, name: name, args: args, load_into: Commands)
 end
