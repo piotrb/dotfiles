@@ -7,6 +7,9 @@ module Commands
         require "yaml/store"
         require_relative "../lib/cri_command_support"
         extend CriCommandSupport
+
+        require "action_view"
+        extend ::ActionView::Helpers::DateHelper
       end
 
       def run(args)
@@ -99,10 +102,10 @@ module Commands
           list = JSON.parse(`brew outdated --json`)
 
           result = prompt.multi_select("Update packages?", per_page: 99) { |menu|
-            list.each do |item|
+            list["formulae"].each do |item|
               label = [
                 "#{item["name"]} (#{item["installed_versions"].join(", ")} -> #{item["current_version"]})",
-                item["pinned"] ? "[pinned: #{item["pinned_version"]}]" : nil,
+                item["pinned"] ? "[pinned: #{item["pinned_version"]}]" : nil
               ].compact.join(" ")
 
               menu.choice label, item["name"], disabled: item["pinned"]
@@ -126,6 +129,31 @@ module Commands
         root_cmd.add_command(requested_cmd)
         root_cmd.add_command(orphans_cmd)
         root_cmd.add_command(update_interactive_cmd)
+
+        x_cmd = define_cmd("x") { |_|
+          result = []
+
+          info = JSON.parse(`brew info --json --installed`)
+          info.each do |item|
+            item["installed"].each do |i|
+              receipt = "/usr/local/Cellar/#{item["name"]}/#{i["version"]}/INSTALL_RECEIPT.json"
+              receipt_info = JSON.parse(File.read(receipt))
+              result << [
+                item["name"],
+                i["version"],
+                Time.at(receipt_info["time"])
+              ]
+            end
+          end
+
+          result.sort_by! { |row| row[2] }
+          result.map! { |row| [row[0], row[1], distance_of_time_in_words_to_now(row[2])] }
+
+          table = TTY::Table.new(header: ["Package", "Version", "Installed"], rows: result)
+          puts table.renderer(:unicode, padding: [0, 1, 0, 1]).render
+        }
+
+        root_cmd.add_command(x_cmd)
       end
     end
   end
