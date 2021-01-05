@@ -3,6 +3,9 @@
 require "English"
 require "yaml"
 
+module Commands
+end
+
 def env_undo
   previous_env = ENV.to_hash
   yield
@@ -17,8 +20,7 @@ ensure
   end
 end
 
-def load_deps(name)
-  fn = File.expand_path("deps/#{name}.gemfile", __dir__)
+def load_gemfile(fn)
   if File.exist?(fn)
     env_undo do
       ENV["BUNDLE_GEMFILE"] = fn
@@ -32,7 +34,7 @@ def load_deps(name)
       rescue Bundler::VersionConflict, Bundler::GemNotFound, LoadError => e
         puts "#{e.class}: #{e.message}"
         print "Would you like to run bundle install? (only `yes' will be accepted) => "
-        input = gets.strip
+        input = $stdin.gets.strip
         if input == "yes"
           system "bundle install"
           Bundler.reset_paths!
@@ -44,11 +46,49 @@ def load_deps(name)
         end
       end
     end
+    true
   end
 end
 
+def load_command_v1(name, args)
+  require_relative "commands/#{name}"
+  klass = "Commands::#{name.to_s.camelcase}".constantize
+  klass.init if klass.respond_to? :init
+  klass.run(args)
+end
+
+def camelize(string)
+  string.split("_").map(&:capitalize).join
+end
+
+def load_command_v2(name, args)
+  v2_path = File.expand_path("commands/#{name}/main.rb", __dir__)
+  runner_class = Class.new
+  Commands.const_set(camelize(name.to_s), runner_class)
+  runner_class.class_eval(File.read(v2_path), v2_path, 1)
+  runner = runner_class.new
+  runner.init if runner.respond_to?(:init)
+  runner.run(args)
+end
+
+def get_cmd_mode(name)
+  v2_path = File.expand_path("commands/#{name}/main.rb", __dir__)
+  v1_path = File.expand_path("commands/#{name}.rb", __dir__)
+  return :v1 if File.exist?(v1_path)
+  return :v2 if File.exist?(v2_path)
+end
+
 def execute_command(name, args)
-  load_deps(name)
+  mode = get_cmd_mode(name)
+
+  case mode
+  when :v1
+    load_gemfile(File.expand_path("deps/#{name}.gemfile", __dir__))
+  when :v2
+    load_gemfile(File.expand_path("commands/#{name}/Gemfile", __dir__))
+  else
+    raise "don't know how to get deps for mode: #{mode.inspect}"
+  end
 
   require_relative "lib/command_helpers"
 
@@ -56,8 +96,12 @@ def execute_command(name, args)
   gem "activesupport"
   require "active_support/all"
 
-  require_relative "commands/#{name}"
-  klass = "Commands::#{name.to_s.camelcase}".constantize
-  klass.init if klass.respond_to? :init
-  klass.run(args)
+  case mode
+  when :v1
+    load_command_v1(name, args)
+  when :v2
+    load_command_v2(name, args)
+  else
+    raise "don't know how to run command mode: #{mode.inspect}"
+  end
 end

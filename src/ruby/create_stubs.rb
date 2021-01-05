@@ -5,18 +5,13 @@ puts "Detecting Environment ..."
 env_location = `which env`.strip
 puts "env: #{env_location}"
 
-def render_stub(comment:, script_name:, env_location:)
-  [
-    "#!#{env_location} ruby",
-    "",
-    "# this is an auto-generated stub for ruby executables",
-    "",
-    comment,
-    comment && "",
-    "require_relative '../src/ruby/init'",
-    "execute_command(#{script_name.to_sym.inspect}, ARGV)",
-    "",
-  ].compact.join("\n")
+def render_stub(script_name:, env_location:)
+  init_path = File.expand_path("./init.rb", __dir__)
+  <<~CODE
+    #!/bin/bash
+    export RBENV_VERSION=`rbenv local`
+    ruby -r #{init_path} -e 'execute_command(#{script_name.to_sym.inspect}, ARGV);' "$*"
+  CODE
 end
 
 puts ""
@@ -39,16 +34,25 @@ Dir["commands/*.rb"].each do |cmd|
   ext = File.extname(cmd)
   script_name = File.basename(cmd, ext)
   exe_name = script_name.tr("_", "-")
-  comment = if File.exist?("commands/#{script_name}.txt")
-    File.read("commands/#{script_name}.txt").strip
-  end
 
-  body = render_stub(comment: comment, script_name: script_name, env_location: env_location)
+  body = render_stub(script_name: script_name, env_location: env_location)
 
   puts "writing #{exe_name} ..."
   existing -= [exe_name]
   File.open("../../bin/#{exe_name}", "w") { |fh| fh.write(body) }
   FileUtils.chmod 0o755, "../../bin/#{exe_name}"
+end
+
+Dir["commands/*/main.rb"].each do |cmd|
+  path = File.dirname(cmd)
+  script_name = File.basename(path)
+
+  body = render_stub(script_name: script_name, env_location: env_location)
+
+  puts "writing #{script_name} ..."
+  existing -= [script_name]
+  File.open("../../bin/#{script_name}", "w") { |fh| fh.write(body) }
+  FileUtils.chmod 0o755, "../../bin/#{script_name}"
 end
 
 if existing.length > 0

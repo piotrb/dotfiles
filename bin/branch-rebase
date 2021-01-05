@@ -1,6 +1,3 @@
-#!/usr/bin/env ruby
-
-# this is an auto-generated stub for ruby executables
-
-require_relative '../src/ruby/init'
-execute_command(:branch_rebase, ARGV)
+#!/bin/bash
+export RBENV_VERSION=`rbenv local`
+ruby -r /Users/piotr/Work/dotfiles/src/ruby/init.rb -e 'execute_command(:branch_rebase, ARGV);' "$*"
