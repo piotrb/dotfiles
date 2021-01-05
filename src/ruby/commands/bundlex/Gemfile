@@ -6,3 +6,10 @@ gem "awesome_print"
 gem "tty-table"
 gem "paint"
 gem "hashie"
+
+gem "pry"
+
+# gem "actionview"
+
+gem "cri"
+# gem "tty-prompt"
