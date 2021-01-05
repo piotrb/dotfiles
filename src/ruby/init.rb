@@ -24,8 +24,7 @@ def load_gemfile(fn)
   if File.exist?(fn)
     env_undo do
       ENV["BUNDLE_GEMFILE"] = fn
-      # ENV['BUNDLE_PATH'] = File.expand_path("deps/bundle", __dir__)
-      ENV["GEM_HOME"] = File.expand_path("deps/bundle", __dir__)
+      ENV["GEM_HOME"] = File.expand_path(".bundle", __dir__)
       require "bundler"
       begin
         Bundler.require(:default)
