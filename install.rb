@@ -20,8 +20,12 @@ plan do
   link '~/.tmux.conf', from: 'tmux.conf'
   link '~/.tmux.mac.conf', from: 'tmux.mac.conf'
 
+  # Asdf
+  link '~/.asdfrc', from: 'asdfrc'
+
   # Ruby
   link '~/.gemrc', from: 'gemrc'
+  link '~/.default-gems', from: 'default-gems'
 
   # Shared Shell
   link '~/.profile.rc.d', from: 'profile.rc.d'

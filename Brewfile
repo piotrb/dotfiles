@@ -7,7 +7,6 @@ tap 'homebrew/cask'
 tap 'homebrew/cask-versions'
 tap 'homebrew/core'
 tap 'homebrew/services'
-tap 'ouchxp/nodenv'
 tap 'puma/puma'
 brew 'awscli'
 brew 'direnv'
@@ -24,16 +23,12 @@ brew 'libgit2'
 brew 'memcached', restart_service: true
 brew 'neovim'
 brew 'node'
-brew 'node-build', args: ['HEAD']
-brew 'nodenv'
 brew 'tmux'
 brew 'overmind'
 # brew 'postgresql', restart_service: true
-brew 'ruby-build'
-brew 'rbenv'
-# brew 'chruby'
 brew 'redis', restart_service: true
 # brew 'siege'
+brew 'asdf', args: ['HEAD']
 brew 'starship', args: ['HEAD']
 brew 'terminal-notifier'
 brew 'terraform-docs'
@@ -45,7 +40,6 @@ brew 'wget'
 brew 'ykman'
 brew 'arkweid/lefthook/lefthook'
 brew 'heroku/brew/heroku'
-brew 'ouchxp/nodenv/nodenv-nvmrc'
 brew 'puma/puma/puma-dev'
 cask 'another-redis-desktop-manager'
 cask 'aws-vault'
