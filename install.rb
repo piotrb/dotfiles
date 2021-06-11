@@ -39,12 +39,14 @@ plan do
   link '~/.zshenv', from: 'zshenv'
 
   # vim
-  dir '~/.vim/bundle'
-  clone 'https://github.com/gmarik/Vundle.vim.git', '~/.vim/bundle/Vundle.vim'
-  link '~/.vim/bundle.vim', from: 'vim/bundle.vim'
-  link '~/.vimrc', from: 'vimrc'
-  link '~/.gvimrc.after', from: 'gvimrc.after'
-  run "vim -u /dev/null -N -c 'source ~/.vim/bundle.vim' +BundleInstall +qall"
+  if `which vim 2>/dev/null`.strip != ""
+    dir '~/.vim/bundle'
+    clone 'https://github.com/gmarik/Vundle.vim.git', '~/.vim/bundle/Vundle.vim'
+    link '~/.vim/bundle.vim', from: 'vim/bundle.vim'
+    link '~/.vimrc', from: 'vimrc'
+    link '~/.gvimrc.after', from: 'gvimrc.after'
+    run "vim -u /dev/null -N -c 'source ~/.vim/bundle.vim' +BundleInstall +qall"
+  end
 
   # Git
   link '~/.gitmessage', from: 'gitmessage'
