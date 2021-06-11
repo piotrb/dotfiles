@@ -9,3 +9,9 @@ end
 def plan(&block)
   PlanMaker.plan(&block)
 end
+
+def if_exe(exe)
+  if `which #{exe} 2>/dev/null`.strip != ""
+    yield
+  end
+end

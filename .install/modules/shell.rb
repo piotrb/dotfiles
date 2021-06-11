@@ -14,7 +14,7 @@ module ShellModule
   end
 
   def run(new_shell)
-    sh "chsh -s #{new_shell}"
+    sh "chsh -s #{new_shell} `whoami`"
   end
 end
 

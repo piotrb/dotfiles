@@ -21,7 +21,7 @@ full_symbol = ""
 charging_symbol = ""
 discharging_symbol = ""
 
-[docker]
+[docker_context]
 symbol = " "
 
 [git_branch]

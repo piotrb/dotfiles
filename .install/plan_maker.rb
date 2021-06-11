@@ -46,14 +46,16 @@ class PlanMaker
 
     interface.print
 
-#     puts 'Are you sure you want to apply these changes? (only "yes" will be accepted)'
+    unless ENV['NON_INTERACTIVE']
+      puts 'Are you sure you want to apply these changes? (only "yes" will be accepted)'
 
-#     input = gets.strip
+      input = gets.strip
 
-#     if input != 'yes'
-#       warn 'Aborting!'
-#       return
-#     end
+      if input != 'yes'
+        warn 'Aborting!'
+        return
+      end
+    end
 
     interface.run
   end

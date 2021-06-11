@@ -6,7 +6,9 @@ require_relative '.install/shared'
 plan do
   clean '~'
 
-  brew 'Brewfile'
+  if_exe "brew" do
+    brew 'Brewfile'
+  end
 
   # Bin
   dir '~/bin'
@@ -39,7 +41,7 @@ plan do
   link '~/.zshenv', from: 'zshenv'
 
   # vim
-  if `which vim 2>/dev/null`.strip != ""
+  if_exe "vim" do
     dir '~/.vim/bundle'
     clone 'https://github.com/gmarik/Vundle.vim.git', '~/.vim/bundle/Vundle.vim'
     link '~/.vim/bundle.vim', from: 'vim/bundle.vim'
@@ -105,7 +107,7 @@ plan do
   link '~/.config/starship.toml', from: 'config/starship.toml'
 
   # Go
-  if `which go 2>/dev/null`.strip != ""
+  if_exe "go" do
     go_get 'github.com/piotrb/bundle_wrapper'
     go_get 'github.com/piotrb/git-branchify'
     go_get 'github.com/piotrb/git-prune-merged'

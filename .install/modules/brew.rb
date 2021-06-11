@@ -6,11 +6,7 @@ class BrewPlanner
   attr_reader :entries
 
   def initialize(brewfile)
-    if `which brew 2>/dev/null`.strip != ""
-      @entries = BrewfileDSL.read(brewfile)
-    else
-      @entries = []
-    end
+    @entries = BrewfileDSL.read(brewfile)
   end
 
   def plan
