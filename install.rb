@@ -105,8 +105,10 @@ plan do
   link '~/.config/starship.toml', from: 'config/starship.toml'
 
   # Go
-  go_get 'github.com/piotrb/bundle_wrapper'
-  go_get 'github.com/piotrb/git-branchify'
-  go_get 'github.com/piotrb/git-prune-merged'
-  go_get 'github.com/piotrb/spring_wrapper'
+  if `which go 2>/dev/null`.strip != ""
+    go_get 'github.com/piotrb/bundle_wrapper'
+    go_get 'github.com/piotrb/git-branchify'
+    go_get 'github.com/piotrb/git-prune-merged'
+    go_get 'github.com/piotrb/spring_wrapper'
+  end
 end
