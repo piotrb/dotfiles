@@ -9,7 +9,6 @@ def render_stub(script_name:, env_location:)
   init_path = File.expand_path("./init.rb", __dir__)
   <<~CODE
     #!/bin/bash
-    export RBENV_VERSION=`rbenv local`
     ruby -r #{init_path} -e 'execute_command(#{script_name.to_sym.inspect}, ARGV);' "$@"
   CODE
 end

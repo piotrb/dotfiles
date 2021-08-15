@@ -1,3 +1,2 @@
 #!/bin/bash
-export RBENV_VERSION=`rbenv local`
 ruby -r /Users/piotr/Work/dotfiles/src/ruby/init.rb -e 'execute_command(:branch_rebase, ARGV);' "$@"
