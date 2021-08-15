@@ -9,7 +9,12 @@ class BrewPlanner
     @entries = BrewfileDSL.read(brewfile)
   end
 
+  def supported?
+    `find brew 2>/dev/null`.strip != ""
+  end
+
   def plan
+    return [] unless supported?
     result = []
     entries.each do |type, *args|
       case type
