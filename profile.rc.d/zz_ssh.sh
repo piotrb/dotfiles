@@ -5,6 +5,11 @@ function which_s() {
 }
 
 function detect_mode() {
+  if [ -n "${SSH_AUTH_SOCK}" ]; then
+    SSH_AGENT_MODE=Existing
+    return
+  fi
+
   if [ -e ~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh ] && [ -e /Applications/Secretive.app ]; then
     SSH_AGENT_MODE=Secretive
     return
@@ -64,5 +69,8 @@ case $SSH_AGENT_MODE in
     if [[ $(ssh-add -l | grep -v "no identities" | wc -l) -lt 1 ]]; then
       ssh-add -A
     fi
+    ;;
+  Existing)
+    echo "Connection opened with SSH Agent Forwarding"
     ;;
 esac

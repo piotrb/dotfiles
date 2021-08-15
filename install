@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 
+if [ -z `command -vp ruby` ]; then
+  echo "Must have ruby installed ..."
+  exit 1
+fi
+
 SKIP_GIT=1 NON_INTERACTIVE=1 ruby ./install.rb

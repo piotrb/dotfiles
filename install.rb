@@ -111,6 +111,7 @@ plan do
   # Shell
   dir '~/.config'
   link '~/.config/starship.toml', from: 'config/starship.toml'
+  link '~/.config/neofetch/config.conf', from: 'config/neofetch/config.conf'
 
   # Go
   if_exe "go" do
