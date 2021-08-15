@@ -18,8 +18,8 @@ class ModuleRegistry
   def plan_context(base_class)
     instance = base_class.new
     modules.each do |name, mod|
-      instance.define_singleton_method(name) do |*args|
-        r = mod.evaluate(*args)
+      instance.define_singleton_method(name) do |*args, **kargs|
+        r = mod.evaluate(*args, **kargs)
         @plan += r if r
       end
     end
