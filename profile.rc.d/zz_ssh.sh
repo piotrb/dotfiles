@@ -71,6 +71,5 @@ case $SSH_AGENT_MODE in
     fi
     ;;
   Existing)
-    echo "Connection opened with SSH Agent Forwarding"
     ;;
 esac

@@ -10,7 +10,7 @@ wget -O tmp/neofetch-${VERSION}.tar.gz https://github.com/dylanaraps/neofetch/ar
 tar -C tmp -xvzf tmp/neofetch-${VERSION}.tar.gz
 chmod +x tmp/neofetch-${VERSION}/neofetch
 
-rm bin/neofetch
+rm -f bin/neofetch
 cp tmp/neofetch-${VERSION}/neofetch bin/neofetch
 
 rm -rf tmp
