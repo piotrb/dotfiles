@@ -30,13 +30,13 @@ function detect_mode() {
   fi
 }
 
-echo -n "[ssh mode: "
+#echo -n "[ssh mode: "
 if [ "$SSH_AGENT_MODE" == "Auto" ]; then
-  echo -n "Auto -> "
+#  echo -n "Auto -> "
   detect_mode
 fi
-echo -n "${SSH_AGENT_MODE}"
-echo "]"
+#echo -n "${SSH_AGENT_MODE}"
+#echo "]"
 
 case $SSH_AGENT_MODE in
   GPG)
