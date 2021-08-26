@@ -18,6 +18,7 @@ module LinkModule
           plan << [:link, :unlink, dst]
         end
       end
+      plan << [:link, :mkdir_p, File.dirname(dst)] unless File.exist?(File.dirname(dst))
       plan << [:link, :ln_s, src, dst] unless File.exist?(dst)
     end
   end
@@ -30,6 +31,9 @@ module LinkModule
     when :ln_s
       puts "ln: #{src} -> #{dst}"
       FileUtils.ln_s(src, dst)
+    when :mkdir_p
+      puts "mkdir_p: #{src}"
+      FileUtils.mkdir_p(src)
     else
       raise ArgumentError, "unhandled action: #{action.inspect}"
     end
