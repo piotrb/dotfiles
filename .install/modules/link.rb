@@ -11,8 +11,9 @@ module LinkModule
     with_plan do |plan|
       dst = File.expand_path(dst)
       src = File.expand_path(from)
-      need_symlink = false
+      need_symlink = true
       if File.exist?(dst)
+        need_symlink = false
         if File.symlink?(dst)
           unless File.readlink(dst) == src
             plan << [:link, :unlink, dst]
