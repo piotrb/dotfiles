@@ -2,8 +2,6 @@ if [ -x /usr/local/bin/brew ]; then
   . $(brew --prefix asdf)/asdf.sh
 elif [ -e $HOME/.asdf/asdf.sh ]; then
   . $HOME/.asdf/asdf.sh
-else
-  echo "asdf not loaded"
 fi
 
 if [ ! -z "${ASDF_DIR}" ]; then
