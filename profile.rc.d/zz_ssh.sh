@@ -16,7 +16,7 @@ function detect_mode() {
   fi
 
   if which_s ssh-agent; then
-    if { ssh-add -h 2>&1| grep "in your keychain" -q }; then
+    if ssh-add -h 2>&1 | grep "in your keychain" -q; then
       SSH_AGENT_MODE=SSH-MAC
     else
       SSH_AGENT_MODE=SSH
