@@ -5,7 +5,7 @@
 ## Debian/Ubuntu
 
 ```
-sudo apt install git vim direnv ruby
+sudo apt install zsh git vim direnv ruby
 
 sh -c "$(curl -fsSL https://starship.rs/install.sh)"
 
