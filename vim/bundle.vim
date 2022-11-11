@@ -68,6 +68,7 @@ Plugin 'bling/vim-airline'
 "Plugin 'shime/vim-livedown'
 Plugin 'jeetsukumaran/vim-buffergator'
 Plugin 'tmhedberg/matchit'
+Plugin 'editorconfig/editorconfig-vim'
 
 " Optional
 
