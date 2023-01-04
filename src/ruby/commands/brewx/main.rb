@@ -39,6 +39,17 @@ def requested_cmd
     end
   }
 
+  status_cmd = define_cmd("status") {
+    installed = installed_formulae + installed_casks
+    requested = config.transaction(true) { config.fetch(:requested, []) }
+    # p requested - installed
+    puts "Requested packages:"
+    requested.each do |pkg|
+      status = installed.include?(pkg)
+      puts "- #{pkg} #{status ? "" : "(missing)"}"
+    end
+  }
+
   add_cmd = define_cmd("add") { |_opts, args, _cmd|
     config.transaction do
       config[:requested] ||= []
@@ -68,27 +79,34 @@ def requested_cmd
   cmd.add_command(list_cmd)
   cmd.add_command(add_cmd)
   cmd.add_command(rm_cmd)
-
-  cmd
+  cmd.add_command(status_cmd)
 end
 
 def orphans_cmd
   define_cmd("orphans") do
+    # installed = installed_formulae + installed_casks
+    installed = brew_leaves
     requested = config.transaction(true) { config.fetch(:requested, []) }
-    orphans = brew_leaves - requested
+    orphans = installed - requested
     p orphans
   end
 end
 
 def uninstall_cmd
-  define_cmd("uninstall", summary: "Uninstall a package, listing any new leaves created") do |_opts, args, _cmd|
+  define_cmd("uninstall", summary: "Uninstall a package, listing any new leaves created") do |_opts, args, cmd|
     leaves = brew_leaves
-    p leaves
-    p args
+    puts "Leaves: #{leaves}"
+    puts "Args: #{args.to_a}"
+    puts "-----------------"
     system ["brew uninstall", args].join(" ")
     after_leaves = brew_leaves
     new_leaves = after_leaves - leaves
-    p new_leaves
+    puts "-----------------"
+    puts "New Leaves: #{new_leaves}"
+    if new_leaves.length > 0
+      puts "Attempt to uninstall thse? (only 'yes' will be accepted)"
+      cmd.run(new_leaves) if $stdin.gets.strip == "yes"
+    end
   end
 end
 
@@ -119,6 +137,22 @@ def update_interactive_cmd
   end
 end
 
+def installed_formulae
+  `brew list --formulae --full-name -1`.split("\n").map(&:strip)
+end
+
+def installed_casks
+  `brew list --casks --full-name -1`.split("\n").map(&:strip)
+end
+
+def missing_cmd
+  define_cmd("missing", summary: "List packages not installed from the requested list") do |_opts, _args, _cmd|
+    installed = installed_formulae + installed_casks
+    requested = config.transaction(true) { config.fetch(:requested, []) }
+    p requested - installed
+  end
+end
+
 def build_root_cmd
   root_cmd = define_cmd("brewx", summary: "Brew Extensions", help: true)
 
@@ -126,6 +160,7 @@ def build_root_cmd
   root_cmd.add_command(requested_cmd)
   root_cmd.add_command(orphans_cmd)
   root_cmd.add_command(update_interactive_cmd)
+  root_cmd.add_command(missing_cmd)
 
   x_cmd = define_cmd("x") { |_|
     result = []
