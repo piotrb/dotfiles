@@ -48,8 +48,6 @@ railways.cache
 .profile.d/github.sh
 .vagrant/*
 
-.vscode
-
 .byebug_history
 
 /bisect.yml
