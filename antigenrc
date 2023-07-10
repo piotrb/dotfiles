@@ -11,5 +11,6 @@ antigen bundle unixorn/rake-completion.zshplugin
 antigen bundle zsh-users/zsh-autosuggestions
 #antigen bundle nojhan/liquidprompt
 antigen bundle junegunn/fzf
+antigen bundle jkavan/terragrunt-oh-my-zsh-plugin
 
 antigen apply
