@@ -10,5 +10,9 @@ if [ -z ${BUNDLER_EDITOR+x} ]; then
   export BUNDLER_EDITOR=code
 fi
 
+if /usr/bin/which -s code-insiders; then
+  alias code=code-insiders
+fi
+
 #export EDITOR="code -w"
 #export GIT_EDITOR="code -w"
