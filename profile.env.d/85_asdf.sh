@@ -1,4 +1,6 @@
-if [ -x /usr/local/bin/brew ]; then
+if [ -x /opt/homebrew/bin/brew ]; then
+  . $(/opt/homebrew/bin/brew --prefix asdf)/libexec/asdf.sh
+elif [ -x /usr/local/bin/brew ]; then
   . $(brew --prefix asdf)/libexec/asdf.sh
 elif [ -e $HOME/.asdf/asdf.sh ]; then
   . $HOME/.asdf/asdf.sh
