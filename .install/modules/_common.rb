@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'English'
+require 'yaml'
 
 module CommonModule
   def with_plan

@@ -16,7 +16,7 @@ GEM
     builder (3.2.4)
     concurrent-ruby (1.1.6)
     crass (1.0.6)
-    cri (2.15.10)
+    cri (2.15.11)
     equatable (0.6.1)
     erubi (1.10.0)
     i18n (1.8.2)
@@ -25,7 +25,7 @@ GEM
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mini_portile2 (2.4.0)
-    minitest (5.14.0)
+    minitest (5.18.1)
     necromancer (0.5.1)
     nokogiri (1.10.10)
       mini_portile2 (~> 2.4.0)
@@ -78,4 +78,4 @@ DEPENDENCIES
   tty-table
 
 BUNDLED WITH
-   1.17.3
+   2.4.10

@@ -4,13 +4,17 @@ require_relative './_common'
 
 class BrewPlanner
   attr_reader :entries
+  attr_reader :requested
+
+  BREWX_CONFIG = File.expand_path("~/.brewx.yml")
 
   def initialize(brewfile)
     @entries = BrewfileDSL.read(brewfile)
+    @requested = []
   end
 
   def supported?
-    `find brew 2>/dev/null`.strip != ""
+    `which brew 2>/dev/null`.strip != ""
   end
 
   def plan
@@ -22,16 +26,38 @@ class BrewPlanner
         result << [type, *args] unless tap_installed?(args[0])
       when :brew
         result << [type, *args] unless brew_package_installed?(args[0])
+        requested << args[0]
       when :cask
         result << [type, *args] unless cask_installed?(args[0])
       else
         raise ArgumentError, "unhandled entry: #{[type, *args].inspect}"
       end
     end
+
+    result += requested_diff
+
     result
   end
 
   private
+
+  def requested_diff
+    if File.exist?(BREWX_CONFIG)
+      current_requested = YAML.load_file(BREWX_CONFIG)[:requested] || []
+    else
+      current_requested = []  
+    end
+    missing = requested - current_requested
+    extra = current_requested - requested
+    
+    return [] if missing.empty? && extra.empty?
+
+    params = {}
+    params[:add] = missing unless missing.empty?
+    params[:remove] = extra unless extra.empty?
+
+    [[:manage_requested, params]]
+  end
 
   def all_taps
     @all_taps ||= `HOMEBREW_NO_AUTO_UPDATE=1 brew tap`.strip.split("\n")
@@ -75,10 +101,10 @@ class BrewfileDSL < BasicObject
     entries << [:tap, source]
   end
 
-  def brew(package, args: nil, restart_service: nil, link: nil)
+  def brew(package, args: nil, start_service: nil, link: nil)
     entries << [:brew, package, {
       args: args,
-      restart_service: restart_service,
+      start_service: start_service,
       link: link
     }.compact]
   end
@@ -111,9 +137,21 @@ module BrewModule
           cmd << " --#{arg}"
         end
         sh(cmd)
+        sh("brew services start #{package.inspect}") if options[:start_service]
       when :cask
         package, = args
         sh("brew install --cask #{package.inspect}")
+      when :manage_requested
+        opts, = args
+        if File.exist?(BrewPlanner::BREWX_CONFIG)
+          data = YAML.load_file(BrewPlanner::BREWX_CONFIG) 
+        else
+          data = {}
+        end
+        data[:requested] ||= []
+        data[:requested] += opts[:add] if opts[:add]
+        data[:requested] -= opts[:remove] if opts[:remove]
+        File.open(BrewPlanner::BREWX_CONFIG, "w") { |f| f.write(YAML.dump(data)) }
       else
         raise ArgumentError, "unhandled component: #{component.inspect}"
       end

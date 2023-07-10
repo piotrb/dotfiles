@@ -107,7 +107,7 @@ plan do
   unless ENV['SKIP_GIT']
     git_config git_config_hash
   end
-
+  
   # Shell
   dir '~/.config'
   link '~/.config/starship.toml', from: 'config/starship.toml'

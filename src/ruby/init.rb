@@ -30,7 +30,8 @@ def load_gemfile(fn)
         Bundler.require(:default)
         Bundler.reset_paths!
         Bundler.clear_gemspec_cache
-      rescue Bundler::VersionConflict, Bundler::GemNotFound, LoadError => e
+      rescue Exception => e
+        raise unless ["Bundler::VersionConflict", "Bundler::GemNotFound", "LoadError"].include?(e.class.name)
         puts "#{e.class}: #{e.message}"
         print "Would you like to run bundle install? (only `yes' will be accepted) => "
         input = $stdin.gets.strip

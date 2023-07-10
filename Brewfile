@@ -1,49 +1,57 @@
 # frozen_string_literal: true
 
-tap 'arkweid/lefthook'
-tap 'heroku/brew'
-tap 'homebrew/bundle'
-tap 'homebrew/cask'
-tap 'homebrew/cask-versions'
-tap 'homebrew/core'
-tap 'homebrew/services'
-tap 'puma/puma'
-brew 'awscli'
-brew 'direnv'
+# Git / GitHub
 brew 'gh'
-# brew 'ghostscript'
-brew 'git'
+# brew 'git'
 # brew 'git-gui'
 brew 'git-lfs'
-# brew 'gnupg', link: false
-brew 'go'
-# brew 'goreleaser'
-# brew 'imagemagick'
-brew 'libgit2'
-brew 'memcached', restart_service: true
-brew 'neovim'
-brew 'node'
-brew 'tmux'
-brew 'overmind'
-# brew 'postgresql', restart_service: true
-brew 'redis', restart_service: true
-# brew 'siege'
-brew 'asdf', args: ['HEAD']
-brew 'starship', args: ['HEAD']
-brew 'terminal-notifier'
-brew 'terraform-docs'
-brew 'terraform@0.13', link: true
-brew 'tflint'
-brew 'the_platinum_searcher'
 brew 'tig'
-brew 'wget'
-brew 'ykman'
-brew 'arkweid/lefthook/lefthook'
-brew 'heroku/brew/heroku'
-brew 'puma/puma/puma-dev'
-cask 'another-redis-desktop-manager'
+brew 'act'
+
+# Node
+brew 'node'
+brew 'yarn'
+
+# AWS
 cask 'aws-vault'
-cask 'brewservicesmenubar'
-cask 'chromedriver'
-cask 'gpg-suite'
-cask 'secretive'
+brew 'awscli'
+
+# Dev Tools
+brew 'the_platinum_searcher'
+# brew 'puma/puma/puma-dev'
+# brew 'terminal-notifier'
+brew 'starship', args: ['HEAD']
+brew 'asdf', args: ['HEAD']
+# brew 'overmind'
+brew 'tmux'
+brew 'neovim'
+brew 'direnv'
+brew 'localstack'
+brew 'adr-tools'
+
+# System Things
+brew 'artginzburg/tap/sudo-touchid', start_service: true
+brew 'wget'
+brew 'jq'
+
+# K8s tools
+brew 'argocd'
+brew 'eksctl'
+brew 'helm'
+brew 'k9s'
+brew 'krew'
+brew 'kubeseal'
+brew 'velero'
+
+# Terraform
+# brew 'terraform-docs'
+# brew 'tflint'
+brew 'terragrunt'
+brew  'tflint'
+brew  'tfsec'
+
+# Lacework
+brew 'lacework/tap/lacework-cli'
+
+# Depenedencies
+brew 'libpq'
