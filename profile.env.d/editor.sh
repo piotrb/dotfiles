@@ -10,8 +10,12 @@ if [ -z ${BUNDLER_EDITOR+x} ]; then
   export BUNDLER_EDITOR=code
 fi
 
-if /usr/bin/which -s code-insiders; then
-  alias code=code-insiders
+if [ -e "/Applications/Visual Studio Code.app" ]; then 
+  PATH="/Applications/Visual Studio Code.app/Contents/Resources/app/bin:$PATH"
+fi
+
+if [ -e "/Applications/Visual Studio Code - Insiders.app" ]; then
+  PATH="/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin:$PATH"
 fi
 
 #export EDITOR="code -w"
