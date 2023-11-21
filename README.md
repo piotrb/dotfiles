@@ -16,3 +16,11 @@ cd dotfiles
 
 ```
 
+## Asdf
+
+```
+asdf plugin-add direnv
+asdf direnv setup --shell bash --version system --no-touch-rc-file
+asdf direnv setup --shell zsh --version system --no-touch-rc-file
+```
+

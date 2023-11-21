@@ -5,6 +5,15 @@ function which_s() {
 }
 
 function detect_mode() {
+  if [ -n "$(launchctl getenv SSH_AUTH_SOCK)" ]; then
+    SSH_AGENT_MODE=launchctl
+    return
+  fi
+  # if grep -q 'IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"' ~/.ssh/config; then
+  #   SSH_AGENT_MODE=1Password
+  #   return
+  # fi
+
   if [ -n "${SSH_AUTH_SOCK}" ]; then
     SSH_AGENT_MODE=Existing
     return
@@ -69,6 +78,13 @@ case $SSH_AGENT_MODE in
     if [[ $(ssh-add -l | grep -v "no identities" | wc -l) -lt 1 ]]; then
       ssh-add -A
     fi
+    ;;
+  # 1Password)
+  #   export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+  #   ;;
+  launchctl)
+    SSH_AUTH_SOCK="$(launchctl getenv SSH_AUTH_SOCK)"
+    export SSH_AUTH_SOCK="${SSH_AUTH_SOCK/#\~/$HOME}"
     ;;
   Existing)
     ;;

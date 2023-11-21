@@ -9,3 +9,5 @@ function k() {
 	fi
 }
 
+export XDG_CONFIG_HOME=$HOME/.config
+

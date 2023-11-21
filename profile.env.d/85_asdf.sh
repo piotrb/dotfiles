@@ -15,3 +15,11 @@ if [ -n "$ZSH_VERSION" ]; then
     compinit
   fi
 fi
+
+if [ -n "$ZSH_VERSION" ]; then
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
+fi
+
+if [ -n "$BASH_VERSION" ]; then
+  source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/bashrc"
+fi
