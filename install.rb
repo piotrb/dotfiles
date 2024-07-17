@@ -38,20 +38,19 @@ plan do
   # Zsh Configs
   shell '/bin/zsh'
   dir '~/.zsh'
-  dir '~/.antigen'
-  clone 'https://github.com/zsh-users/antigen.git', '~/.antigen/source'
-  link '~/.antigenrc', from: 'antigenrc'
+  clone 'https://github.com/mattmc3/antidote.git', '~/.antidote', update: true
+  link '~/.zsh_plugins.txt', from: 'zsh_plugins.txt'
   link '~/.zshrc', from: 'zshrc'
   link '~/.zshenv', from: 'zshenv'
 
   # vim
   if_exe "vim" do
     dir '~/.vim/bundle'
-    clone 'https://github.com/gmarik/Vundle.vim.git', '~/.vim/bundle/Vundle.vim'
+    clone 'https://github.com/gmarik/Vundle.vim.git', '~/.vim/bundle/Vundle.vim', update: true
     link '~/.vim/bundle.vim', from: 'vim/bundle.vim'
     link '~/.vimrc', from: 'vimrc'
     link '~/.gvimrc.after', from: 'gvimrc.after'
-    run "vim -u /dev/null -N -c 'source ~/.vim/bundle.vim' +BundleInstall +qall"
+    run "vim -u /dev/null -N -c 'source ~/.vim/bundle.vim' +BundleInstall +qall", state: "vim-plugins", state_globs: ['~/.vim/**/*', '~/.vimrc']
   end
 
   # Git
@@ -114,10 +113,10 @@ plan do
   link '~/.config/neofetch/config.conf', from: 'config/neofetch/config.conf'
 
   # Go
-  if_exe "go" do
-    go_get 'github.com/piotrb/bundle_wrapper'
-    go_get 'github.com/piotrb/git-branchify'
-    go_get 'github.com/piotrb/git-prune-merged'
-    go_get 'github.com/piotrb/spring_wrapper'
-  end
+  # if_exe "go" do
+  #   go_get 'github.com/piotrb/bundle_wrapper'
+  #   go_get 'github.com/piotrb/git-branchify'
+  #   go_get 'github.com/piotrb/git-prune-merged'
+  #   go_get 'github.com/piotrb/spring_wrapper'
+  # end
 end

@@ -9,8 +9,8 @@ brew 'tig'
 brew 'act'
 
 # Node
-brew 'node'
-brew 'yarn'
+# brew 'node'
+# brew 'yarn'
 
 # AWS
 cask 'aws-vault'
@@ -26,29 +26,29 @@ brew 'asdf', args: ['HEAD']
 brew 'tmux'
 brew 'neovim'
 brew 'direnv'
-brew 'localstack'
+# brew 'localstack'
 brew 'adr-tools'
 
 # System Things
-brew 'artginzburg/tap/sudo-touchid', start_service: true
+# brew 'artginzburg/tap/sudo-touchid', start_service: true
 brew 'wget'
 brew 'jq'
 
 # K8s tools
 brew 'argocd'
-brew 'eksctl'
+# brew 'eksctl'
 brew 'helm'
 brew 'k9s'
 brew 'krew'
 brew 'kubeseal'
-brew 'velero'
+# brew 'velero'
 
 # Terraform
 # brew 'terraform-docs'
 # brew 'tflint'
-brew 'terragrunt'
-brew  'tflint'
-brew  'tfsec'
+# brew 'terragrunt'
+# brew  'tflint'
+# brew  'tfsec'
 
 # Lacework
 brew 'lacework/tap/lacework-cli'

@@ -7,3 +7,4 @@ if [ -d $HOME/.profile.env.d ]; then
   done
   unset i
 fi
+

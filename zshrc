@@ -1,9 +1,15 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
 # zmodload zsh/zprof
-source ~/.antigen/source/antigen.zsh
+source ~/.antidote/antidote.zsh
 
 export RBENV_ROOT=~/.rbenv
 
-antigen init "$HOME/.antigenrc"
+antidote load
 
 # load global rc scripts
 
@@ -25,3 +31,5 @@ if [ -d $HOME/.profile.rc.d ]; then
   done
   unset i
 fi
+
+unset ZSH_AUTOSUGGEST_USE_ASYNC

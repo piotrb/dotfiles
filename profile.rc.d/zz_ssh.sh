@@ -4,15 +4,18 @@ function which_s() {
   env which $1 2>&1 >/dev/null && return 0 || return 1
 }
 
+# export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+
 function detect_mode() {
+  if grep -q 'IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"' ~/.ssh/config; then
+    SSH_AGENT_MODE=1Password
+    return
+  fi
+
   if [ -n "$(launchctl getenv SSH_AUTH_SOCK)" ]; then
     SSH_AGENT_MODE=launchctl
     return
   fi
-  # if grep -q 'IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"' ~/.ssh/config; then
-  #   SSH_AGENT_MODE=1Password
-  #   return
-  # fi
 
   if [ -n "${SSH_AUTH_SOCK}" ]; then
     SSH_AGENT_MODE=Existing
@@ -39,13 +42,13 @@ function detect_mode() {
   fi
 }
 
-#echo -n "[ssh mode: "
+# echo -n "[ssh mode: "
 if [ "$SSH_AGENT_MODE" == "Auto" ]; then
-#  echo -n "Auto -> "
+  # echo -n "Auto -> "
   detect_mode
 fi
-#echo -n "${SSH_AGENT_MODE}"
-#echo "]"
+# echo -n "${SSH_AGENT_MODE}"
+# echo "]"
 
 case $SSH_AGENT_MODE in
   GPG)
@@ -79,9 +82,9 @@ case $SSH_AGENT_MODE in
       ssh-add -A
     fi
     ;;
-  # 1Password)
-  #   export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
-  #   ;;
+  1Password)
+    export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+    ;;
   launchctl)
     SSH_AUTH_SOCK="$(launchctl getenv SSH_AUTH_SOCK)"
     export SSH_AUTH_SOCK="${SSH_AUTH_SOCK/#\~/$HOME}"

@@ -24,3 +24,12 @@ asdf direnv setup --shell bash --version system --no-touch-rc-file
 asdf direnv setup --shell zsh --version system --no-touch-rc-file
 ```
 
+
+Other plugins:
+```
+asdf plugin-add nodejs
+asdf plugin-add opentofu
+asdf plugin-add ruby
+asdf plugin-add rust
+asdf plugin-add terraform
+```

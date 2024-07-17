@@ -44,6 +44,11 @@ class PlanMaker
     interface = PlanMaker.new
     interface.exec(&block)
 
+    if interface.empty?
+      puts "Plan is empty. Nothing to do."
+      return
+    end
+
     interface.print
 
     unless ENV['NON_INTERACTIVE']
@@ -69,8 +74,13 @@ class PlanMaker
   def run
     plan.each do |module_name, *args|
       mod = ModuleRegistry.instance.modules[module_name]
-      mod.run(*args)
+      run_args, run_kwargs = mod.args_for_run(args)
+      mod.run(*run_args, **run_kwargs)
     end
+  end
+
+  def empty?
+    plan.empty?
   end
 
   def print
