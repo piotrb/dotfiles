@@ -28,6 +28,7 @@ brew 'neovim'
 brew 'direnv'
 # brew 'localstack'
 brew 'adr-tools'
+brew 'atuin'
 
 # System Things
 # brew 'artginzburg/tap/sudo-touchid', start_service: true

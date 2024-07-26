@@ -3,10 +3,9 @@
 require_relative './_common'
 
 class BrewPlanner
-  attr_reader :entries
-  attr_reader :requested
+  attr_reader :entries, :requested
 
-  BREWX_CONFIG = File.expand_path("~/.brewx.yml")
+  BREWX_CONFIG = File.expand_path('~/.brewx.yml')
 
   def initialize(brewfile)
     @entries = BrewfileDSL.read(brewfile)
@@ -14,11 +13,12 @@ class BrewPlanner
   end
 
   def supported?
-    `which brew 2>/dev/null`.strip != ""
+    `which brew 2>/dev/null`.strip != ''
   end
 
   def plan
     return [] unless supported?
+
     result = []
     entries.each do |type, *args|
       case type
@@ -42,14 +42,14 @@ class BrewPlanner
   private
 
   def requested_diff
-    if File.exist?(BREWX_CONFIG)
-      current_requested = YAML.load_file(BREWX_CONFIG)[:requested] || []
-    else
-      current_requested = []  
-    end
+    current_requested = if File.exist?(BREWX_CONFIG)
+                          YAML.load_file(BREWX_CONFIG)[:requested] || []
+                        else
+                          []
+                        end
     missing = requested - current_requested
     extra = current_requested - requested
-    
+
     return [] if missing.empty? && extra.empty?
 
     params = {}
@@ -64,7 +64,7 @@ class BrewPlanner
   end
 
   def all_packages
-    @all_brews ||= `HOMEBREW_NO_AUTO_UPDATE=1 brew list --full-name --formulae`.strip.split("\n")
+    @all_packages ||= `HOMEBREW_NO_AUTO_UPDATE=1 brew list --full-name --formulae`.strip.split("\n")
   end
 
   def all_casks
@@ -103,10 +103,10 @@ class BrewfileDSL < BasicObject
 
   def brew(package, args: nil, start_service: nil, link: nil)
     entries << [:brew, package, {
-      args: args,
-      start_service: start_service,
-      link: link
-    }.compact]
+      args:,
+      start_service:,
+      link:
+    }.compact,]
   end
 
   def cask(package)
@@ -117,49 +117,75 @@ end
 module BrewModule
   include CommonModule
 
-  def evaluate(brewfile)
-    brew_plan = BrewPlanner.new(brewfile).plan
-    with_plan do |plan|
-      plan << [:brew, brew_plan] unless brew_plan.empty?
-    end
-  end
-
-  def run(brew_plan)
-    brew_plan.each do |component, *args|
-      case component
-      when :tap
-        source, = args
-        sh("brew tap #{source.inspect}")
-      when :brew
-        package, options = args
-        cmd = "brew install #{package.inspect}"
-        options[:args]&.each do |arg|
-          cmd << " --#{arg}"
-        end
-        sh(cmd)
-        sh("brew services start #{package.inspect}") if options[:start_service]
-      when :cask
-        package, = args
-        sh("brew install --cask #{package.inspect}")
-      when :manage_requested
-        opts, = args
-        if File.exist?(BrewPlanner::BREWX_CONFIG)
-          data = YAML.load_file(BrewPlanner::BREWX_CONFIG) 
+  module Actions
+    module ActionProxy
+      def format_plan_item(item)
+        case item[0]
+        when :manage_requested
+          "Manage Requested: #{item[1].inspect}"
+        when :tap
+          "Tap: #{item[1].inspect}"
+        when :brew
+          "Brew: #{item[1].inspect}"
+        when :cask
+          "Cask: #{item[1].inspect}"
         else
-          data = {}
+          item.inspect
         end
-        data[:requested] ||= []
-        data[:requested] += opts[:add] if opts[:add]
-        data[:requested] -= opts[:remove] if opts[:remove]
-        File.open(BrewPlanner::BREWX_CONFIG, "w") { |f| f.write(YAML.dump(data)) }
-      else
-        raise ArgumentError, "unhandled component: #{component.inspect}"
+      end
+
+      def format_args_for_print
+        result = String.new
+        brew_plan = @args[0]
+        result << "\n" unless brew_plan.empty?
+        brew_plan.each do |item|
+          result << '  ' << format_plan_item(item) << "\n"
+        end
+        result
+      end
+    end
+
+    def apply_plan(brew_plan)
+      brew_plan.each do |component, *args|
+        case component
+        when :tap
+          source, = args
+          sh("brew tap #{source.inspect}")
+        when :brew
+          package, options = args
+          cmd = "brew install #{package.inspect}"
+          options[:args]&.each do |arg|
+            cmd << " --#{arg}"
+          end
+          sh(cmd)
+          sh("brew services start #{package.inspect}") if options[:start_service]
+        when :cask
+          package, = args
+          sh("brew install --cask #{package.inspect}")
+        when :manage_requested
+          opts, = args
+          data = if File.exist?(BrewPlanner::BREWX_CONFIG)
+                   YAML.load_file(BrewPlanner::BREWX_CONFIG)
+                 else
+                   {}
+                 end
+          data[:requested] ||= []
+          data[:requested] += opts[:add] if opts[:add]
+          data[:requested] -= opts[:remove] if opts[:remove]
+          File.open(BrewPlanner::BREWX_CONFIG, 'w') { |f| f.write(YAML.dump(data)) }
+        else
+          raise ArgumentError, "unhandled component: #{component.inspect}"
+        end
       end
     end
   end
 
-  def format_for_print(args, *)
-    args.map(&:inspect).join("\n")
+  def evaluate(brewfile)
+    brew_plan = BrewPlanner.new(brewfile).plan
+    with_plan do |plan|
+      # plan << [:brew, brew_plan] unless brew_plan.empty?
+      plan << action(:apply_plan, brew_plan) unless brew_plan.empty?
+    end
   end
 end
 

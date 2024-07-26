@@ -11,7 +11,8 @@ def plan(&block)
 end
 
 def if_exe(exe)
-  if `which #{exe} 2>/dev/null`.strip != ""
-    yield
-  end
+  exe_found = `which #{exe} 2>/dev/null`.strip != ''
+  return unless exe_found
+
+  yield
 end

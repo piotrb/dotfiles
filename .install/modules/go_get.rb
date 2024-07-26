@@ -5,14 +5,16 @@ require_relative './_common'
 module GoGetModule
   include CommonModule
 
-  def evaluate(package)
-    with_plan do |plan|
-      plan << [:go_get, package]
+  module Actions
+    def get(package)
+      sh("go get #{package.inspect}")
     end
   end
 
-  def run(package)
-    sh("go get #{package.inspect}")
+  def evaluate(package)
+    with_plan do |plan|
+      plan << action(:get, package)
+    end
   end
 end
 

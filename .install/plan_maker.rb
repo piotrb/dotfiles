@@ -12,7 +12,28 @@ class ModuleRegistry
   end
 
   def self.register_module(name, mod)
-    instance.modules[name] = ::Object.new.tap { |o| o.extend mod }
+    proxy_object = ::Object.new.tap { |o| o.extend mod }
+    proxy_object.define_singleton_method(:inspect) { "<ModuleProxy: #{name}>" }
+
+    actions_module = mod::Actions
+
+    actions = {}
+
+    actions_module.instance_methods(false).each do |method|
+      actions[method] = actions_module.instance_method(method).bind(proxy_object)
+    end
+
+    proxy_object.define_singleton_method(:actions_module) { actions_module }
+
+    proxy_object.define_singleton_method(:mod_name) do
+      mod.name.gsub(/Module$/, '')
+    end
+
+    proxy_object.define_singleton_method(:actions) do
+      actions
+    end
+
+    instance.modules[name] = proxy_object
   end
 
   def plan_context(base_class)
@@ -45,7 +66,7 @@ class PlanMaker
     interface.exec(&block)
 
     if interface.empty?
-      puts "Plan is empty. Nothing to do."
+      puts 'Plan is empty. Nothing to do.'
       return
     end
 
@@ -72,11 +93,7 @@ class PlanMaker
   end
 
   def run
-    plan.each do |module_name, *args|
-      mod = ModuleRegistry.instance.modules[module_name]
-      run_args, run_kwargs = mod.args_for_run(args)
-      mod.run(*run_args, **run_kwargs)
-    end
+    plan.each(&:call)
   end
 
   def empty?
@@ -84,26 +101,17 @@ class PlanMaker
   end
 
   def print
-    max_module = plan.map { |line| line[0].to_s.length }.max
-    plan.each do |module_name, *args|
-      prefix = format('%*s: ', max_module, module_name)
-      mod = ModuleRegistry.instance.modules[module_name]
-      output = mod.format_for_print(*args)
+    max_module = plan.map { |line| line.mod_name.length }.max
+    plan.each do |proxy|
+      prefix = format('%*s: ', max_module, proxy.mod_name)
+      output = proxy.format_for_print
       puts prefix_first_line(prefix, output)
     end
   end
 
-  def respond_to_missing?(method_name)
-    ::ModuleRegistry.instance.respond_to?(method_name)
-  end
-
-  def method_missing(method_name, *args)
-    ::ModuleRegistry.instance.send(method_name, *args)
-  end
-
   def prefix_first_line(prefix, lines)
     lines.split("\n").each_with_index.map do |line, index|
-      if index == 0
+      if index.zero?
         prefix + line
       else
         prefix.gsub(/./, ' ') + line

@@ -6,7 +6,7 @@ require_relative '.install/shared'
 plan do
   clean '~'
 
-  if_exe "brew" do
+  if_exe 'brew' do
     brew 'Brewfile'
   end
 
@@ -22,6 +22,16 @@ plan do
 
   # Asdf
   link '~/.asdfrc', from: 'asdfrc'
+  asdf_plugin 'direnv', after_install: [
+    'asdf direnv setup --shell bash --version system --no-touch-rc-file',
+    'asdf direnv setup --shell zsh --version system --no-touch-rc-file',
+  ]
+  asdf_plugin 'nodejs'
+  asdf_plugin 'opentofu'
+  asdf_plugin 'ruby'
+  asdf_plugin 'rust'
+  asdf_plugin 'terraform'
+  asdf_plugin 'terragrunt'
 
   # Ruby
   link '~/.gemrc', from: 'gemrc'
@@ -43,14 +53,18 @@ plan do
   link '~/.zshrc', from: 'zshrc'
   link '~/.zshenv', from: 'zshenv'
 
+  link '~/.config/atuin/config.toml', from: 'config/atuin/config.toml'
+
   # vim
-  if_exe "vim" do
+  if_exe 'vim' do
     dir '~/.vim/bundle'
     clone 'https://github.com/gmarik/Vundle.vim.git', '~/.vim/bundle/Vundle.vim', update: true
     link '~/.vim/bundle.vim', from: 'vim/bundle.vim'
     link '~/.vimrc', from: 'vimrc'
     link '~/.gvimrc.after', from: 'gvimrc.after'
-    run "vim -u /dev/null -N -c 'source ~/.vim/bundle.vim' +BundleInstall +qall", state: "vim-plugins", state_globs: ['~/.vim/**/*', '~/.vimrc']
+    run "vim -u /dev/null -N -c 'source ~/.vim/bundle.vim' +BundleInstall +qall",
+        state: 'vim-plugins',
+        state_globs: ['~/.vim/**/*', '~/.vimrc']
   end
 
   # Git
@@ -106,13 +120,13 @@ plan do
   unless ENV['SKIP_GIT']
     git_config git_config_hash
   end
-  
+
   # Shell
   dir '~/.config'
   link '~/.config/starship.toml', from: 'config/starship.toml'
   link '~/.config/neofetch/config.conf', from: 'config/neofetch/config.conf'
 
-  # Go
+  # # Go
   # if_exe "go" do
   #   go_get 'github.com/piotrb/bundle_wrapper'
   #   go_get 'github.com/piotrb/git-branchify'

@@ -22,3 +22,5 @@ jkavan/terragrunt-oh-my-zsh-plugin
 ahmetb/kubectx path:completion kind:fpath
 
 romkatv/powerlevel10k
+
+atuinsh/atuin

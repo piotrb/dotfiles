@@ -5,6 +5,14 @@ require_relative './_common'
 module CleanModule
   include CommonModule
 
+  module Actions
+    def unlink(path)
+      original = File.readlink(path)
+      puts "clean: #{path} (originally: #{original})"
+      File.unlink(path)
+    end
+  end
+
   def evaluate(path)
     with_plan do |plan|
       path = File.expand_path(path)
@@ -14,20 +22,9 @@ module CleanModule
         begin
           File.realpath(fn)
         rescue Errno::ENOENT
-          plan << [:clean, :unlink, fn]
+          plan << action(:unlink, fn)
         end
       end
-    end
-  end
-
-  def run(action, path)
-    case action
-    when :unlink
-      original = File.readlink(path)
-      puts "clean: #{path} (originally: #{original})"
-      File.unlink(path)
-    else
-      raise ArgumentError, "unhandled action: #{action.inspect}"
     end
   end
 end

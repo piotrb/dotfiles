@@ -5,6 +5,16 @@ require_relative './_common'
 module CloneModule
   include CommonModule
 
+  module Actions
+    def update(path, remote_head: nil)
+      sh("cd #{path.inspect} && git reset --hard #{remote_head.inspect}")
+    end
+
+    def clone(repo, path)
+      sh("git clone --recursive #{repo.inspect} #{path.inspect}")
+    end
+  end
+
   def evaluate(repo, path, update: false)
     with_plan do |plan|
       path = File.expand_path(path)
@@ -21,23 +31,12 @@ module CloneModule
             commits = `cd #{path.inspect} && git log #{head_revision}..#{remote_head} --oneline`.strip.split("\n")
             notes << "Commits: (#{commits.length})"
             notes += commits.map { |c| "  #{c}" }
-            plan << [:clone, repo, path, { mode: :update, remote_head: remote_head }, { notes: notes.join("\n") }]
+            plan << action(:update, path, remote_head:, __notes: notes.join("\n"))
           end
         end
       else
-        plan << [:clone, repo, path]
+        plan << action(:clone, repo, path)
       end
-    end
-  end
-
-  def run(repo, path, mode: :new, remote_head: nil)
-    case mode
-    when :update
-      sh("cd #{path.inspect} && git reset --hard #{remote_head.inspect}")
-    when :new
-      sh("git clone --recursive #{repo.inspect} #{path.inspect}")
-    else
-      raise "unknown mode: #{mode}"
     end
   end
 end

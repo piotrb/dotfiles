@@ -7,6 +7,23 @@ require_relative './_common'
 module LinkModule
   include CommonModule
 
+  module Actions
+    def mkdir_p(dst)
+      puts "mkdir_p: #{dst}"
+      FileUtils.mkdir_p(dst)
+    end
+
+    def ln_s(src, dst)
+      puts "ln: #{src} -> #{dst}"
+      FileUtils.ln_s(src, dst)
+    end
+
+    def unlink(dst)
+      puts "unlink: #{dst}"
+      File.unlink(dst)
+    end
+  end
+
   def evaluate(dst, from:)
     with_plan do |plan|
       dst = File.expand_path(dst)
@@ -16,32 +33,16 @@ module LinkModule
         need_symlink = false
         if File.symlink?(dst)
           unless File.readlink(dst) == src
-            plan << [:link, :unlink, dst]
+            plan << action(:unlink, dst)
             need_symlink = true
           end
         else
-          plan << [:link, :unlink, dst]
+          plan << action(:unlink, dst)
           need_symlink = true
         end
       end
-      plan << [:link, :mkdir_p, File.dirname(dst)] unless File.exist?(File.dirname(dst))
-      plan << [:link, :ln_s, src, dst] if need_symlink
-    end
-  end
-
-  def run(action, src, dst = nil)
-    case action
-    when :unlink
-      puts "unlink: #{src}"
-      File.unlink(src)
-    when :ln_s
-      puts "ln: #{src} -> #{dst}"
-      FileUtils.ln_s(src, dst)
-    when :mkdir_p
-      puts "mkdir_p: #{src}"
-      FileUtils.mkdir_p(src)
-    else
-      raise ArgumentError, "unhandled action: #{action.inspect}"
+      plan << action(:mkdir_p, File.dirname(dst)) unless File.exist?(File.dirname(dst))
+      plan << action(:ln_s, src, dst) if need_symlink
     end
   end
 end
