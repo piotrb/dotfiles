@@ -16,10 +16,12 @@ if [ -n "$ZSH_VERSION" ]; then
   fi
 fi
 
-if [ -n "$ZSH_VERSION" ]; then
-  source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
-fi
+if which asdf 1>&2 2>/dev/null; then
+  if [ -n "$ZSH_VERSION" ]; then
+    source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
+  fi
 
-if [ -n "$BASH_VERSION" ]; then
-  source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/bashrc"
+  if [ -n "$BASH_VERSION" ]; then
+    source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/bashrc"
+  fi
 fi

@@ -7,14 +7,18 @@ function which_s() {
 # export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
 
 function detect_mode() {
-  if grep -q 'IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"' ~/.ssh/config; then
-    SSH_AGENT_MODE=1Password
-    return
+  if [ -f ~/.ssh/config ]; then
+    if grep -q 'IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"' ~/.ssh/config; then
+      SSH_AGENT_MODE=1Password
+      return
+    fi
   fi
 
-  if [ -n "$(launchctl getenv SSH_AUTH_SOCK)" ]; then
-    SSH_AGENT_MODE=launchctl
-    return
+  if which launchctl 2>&1 >/dev/null; then
+    if [ -n "$(launchctl getenv SSH_AUTH_SOCK)" ]; then
+      SSH_AGENT_MODE=launchctl
+      return
+    fi
   fi
 
   if [ -n "${SSH_AUTH_SOCK}" ]; then

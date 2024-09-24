@@ -64,27 +64,42 @@ class ActionProxy
 
   attr_reader :mod_name
 
+  def custom_format_method(base)
+    method_name = "#{base}_for_#{@action_name}"
+    method_name if respond_to?(method_name)
+  end
+
   def format_for_print
-    result = String.new
-    result << "#{@action_name}("
-    result << format_args_for_print
-    result << ')'
-    if @notes
-      result << "\n"
-      result << @notes
-      result << "\n"
+    custom_method_name = custom_format_method(:format_for_print)
+    if custom_method_name
+      send(custom_method_name)
+    else
+      result = String.new
+      result << "#{@action_name}("
+      result << format_args_for_print
+      result << ')'
+      if @notes
+        result << "\n"
+        result << @notes
+        result << "\n"
+      end
+      result
     end
-    result
   end
 
   def format_args_for_print
-    result = String.new
-    result << @args.map(&:inspect).join(', ') if @args.length.positive?
-    if @kwargs.length.positive?
-      result << ', ' if @args.length.positive?
-      result << @kwargs.map { |k, v| "#{k}: #{v.inspect}" }.join(', ')
+    custom_method_name = custom_format_method(:format_args_for_print)
+    if custom_method_name
+      send(custom_method_name)
+    else
+      result = String.new
+      result << @args.map(&:inspect).join(', ') if @args.length.positive?
+      if @kwargs.length.positive?
+        result << ', ' if @args.length.positive?
+        result << @kwargs.map { |k, v| "#{k}: #{v.inspect}" }.join(', ')
+      end
+      result
     end
-    result
   end
 
   def call
@@ -92,6 +107,6 @@ class ActionProxy
   end
 
   def inspect
-    "<ActionProxy: Module: #{@module_name}, Action: #{@action_name}, Args: #{@args}, Kwargs: #{@kwargs}>"
+    "<ActionProxy: Module: #{@mod_name}, Action: #{@action_name}, Args: #{@args}, Kwargs: #{@kwargs}>"
   end
 end

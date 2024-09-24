@@ -15,9 +15,9 @@ module RunModule
   def evaluate(cmd, state: nil, state_globs: nil)
     with_plan do |plan|
       if state && state_globs
-        plan << action(:run, cmd, { state:, state_globs: }) unless state_check(state, state_globs)
+        plan << action(:run, cmd, state:, state_globs:) unless state_check(state, state_globs)
       else
-        plan << action(:run, cmd, {})
+        plan << action(:run, cmd)
       end
     end
   end

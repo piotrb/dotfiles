@@ -8,9 +8,11 @@ function aw() {
 
 export AWS_PAGER=""
 
-# if on zsh, set up completion
-if [ -n "$ZSH_VERSION" ]; then
-  # use exec's completion syntax for aw
-  compdef _exec aw
+if which compdef 2>&1 >/dev/null; then
+  # if on zsh, set up completion
+  if [ -n "$ZSH_VERSION" ]; then
+    # use exec's completion syntax for aw
+    compdef _exec aw
+  fi
 fi
 

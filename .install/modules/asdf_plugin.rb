@@ -16,11 +16,17 @@ module AsdfPluginModule
       end
     end
   end
+  
+  def supported?
+    `which asdf 2>/dev/null`.strip != ''
+  end
 
   def evaluate(name, after_install: nil)
     with_plan do |plan|
-      installed_plugins = `asdf plugin list`.strip.split("\n")
-      plan << action(:install, name, after_install:) unless installed_plugins.include?(name)
+      if supported?
+        installed_plugins = `asdf plugin list`.strip.split("\n")
+        plan << action(:install, name, after_install:) unless installed_plugins.include?(name)
+      end
     end
   end
 end
