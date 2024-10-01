@@ -16,7 +16,7 @@ if [ -n "$ZSH_VERSION" ]; then
   fi
 fi
 
-if which asdf 1>&2 2>/dev/null; then
+if which asdf 1>/dev/null 2>/dev/null; then
   if [ -n "$ZSH_VERSION" ]; then
     source "${XDG_CONFIG_HOME:-$HOME/.config}/asdf-direnv/zshrc"
   fi
