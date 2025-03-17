@@ -8,7 +8,7 @@ module ShellModule
   include CommonModule
 
   module Actions
-    def chsh(new_shell)
+    def chsh(new_shell, **kwargs)
       sh "sudo chsh -s #{new_shell} `whoami`"
     end
   end

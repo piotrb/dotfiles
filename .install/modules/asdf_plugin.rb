@@ -25,7 +25,7 @@ module AsdfPluginModule
     with_plan do |plan|
       if supported?
         installed_plugins = `asdf plugin list`.strip.split("\n")
-        plan << action(:install, name, after_install:) unless installed_plugins.include?(name)
+        plan << action(:install, name, after_install: after_install) unless installed_plugins.include?(name)
       end
     end
   end

@@ -6,7 +6,7 @@ module GoGetModule
   include CommonModule
 
   module Actions
-    def get(package)
+    def get(package, **kwargs)
       sh("go get #{package.inspect}")
     end
   end

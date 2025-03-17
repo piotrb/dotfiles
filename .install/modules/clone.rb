@@ -6,11 +6,11 @@ module CloneModule
   include CommonModule
 
   module Actions
-    def update(path, remote_head: nil)
+    def update(path, remote_head: nil, **kwargs)
       sh("cd #{path.inspect} && git reset --hard #{remote_head.inspect}")
     end
 
-    def clone(repo, path)
+    def clone(repo, path, **kwargs)
       sh("git clone --recursive #{repo.inspect} #{path.inspect}")
     end
   end
@@ -31,7 +31,7 @@ module CloneModule
             commits = `cd #{path.inspect} && git log #{head_revision}..#{remote_head} --oneline`.strip.split("\n")
             notes << "Commits: (#{commits.length})"
             notes += commits.map { |c| "  #{c}" }
-            plan << action(:update, path, remote_head:, __notes: notes.join("\n"))
+            plan << action(:update, path, remote_head: remote_head, __notes: notes.join("\n"))
           end
         end
       else

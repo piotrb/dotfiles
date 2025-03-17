@@ -6,7 +6,7 @@ module GitConfigModule
   include CommonModule
 
   module Actions
-    def config(values)
+    def config(values, **kwargs)
       values.each do |key, value|
         sh "git config --global #{key} #{value.to_s.inspect}"
       end

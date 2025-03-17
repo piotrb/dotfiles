@@ -103,9 +103,9 @@ class BrewfileDSL < BasicObject
 
   def brew(package, args: nil, start_service: nil, link: nil)
     entries << [:brew, package, {
-      args:,
-      start_service:,
-      link:
+      args: args,
+      start_service: start_service,
+      link: link,
     }.compact,]
   end
 
@@ -145,7 +145,10 @@ module BrewModule
       end
     end
 
-    def apply_plan(brew_plan)
+    def apply_plan(brew_plan, **kwargs)
+      unless kwargs.keys.empty?
+        raise ArgumentError, "unhandled kwargs: #{kwargs.inspect}"
+      end
       brew_plan.each do |component, *args|
         case component
         when :tap
@@ -153,7 +156,7 @@ module BrewModule
           sh("brew tap #{source.inspect}")
         when :brew
           package, options = args
-          cmd = "brew install #{package.inspect}"
+          cmd = String.new("brew install #{package.inspect}")
           options[:args]&.each do |arg|
             cmd << " --#{arg}"
           end

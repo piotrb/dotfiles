@@ -8,17 +8,17 @@ module LinkModule
   include CommonModule
 
   module Actions
-    def mkdir_p(dst)
+    def mkdir_p(dst, **kwargs)
       puts "mkdir_p: #{dst}"
       FileUtils.mkdir_p(dst)
     end
 
-    def ln_s(src, dst)
+    def ln_s(src, dst, **kwargs)
       puts "ln: #{src} -> #{dst}"
       FileUtils.ln_s(src, dst)
     end
 
-    def unlink(dst)
+    def unlink(dst, **kwargs)
       puts "unlink: #{dst}"
       File.unlink(dst)
     end

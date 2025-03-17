@@ -8,7 +8,7 @@ module DirModule
   include CommonModule
 
   module Actions
-    def mkdir(path)
+    def mkdir(path, **kwargs)
       puts "mkdir: #{path}"
       FileUtils.mkdir_p(path)
     end

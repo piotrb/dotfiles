@@ -16,31 +16,6 @@ plan do
     link "~/bin/#{File.basename(fn)}", from: fn
   end
 
-  # Tmux
-  link '~/.tmux.conf', from: 'tmux.conf'
-  link '~/.tmux.mac.conf', from: 'tmux.mac.conf'
-
-  # Asdf
-  link '~/.asdfrc', from: 'asdfrc'
-  asdf_plugin 'direnv', after_install: [
-    'asdf direnv setup --shell bash --version system --no-touch-rc-file',
-    'asdf direnv setup --shell zsh --version system --no-touch-rc-file',
-  ]
-  asdf_plugin 'nodejs'
-  asdf_plugin 'opentofu'
-  asdf_plugin 'ruby'
-  asdf_plugin 'rust'
-  asdf_plugin 'terraform'
-  asdf_plugin 'terragrunt'
-
-  # Ruby
-  link '~/.gemrc', from: 'gemrc'
-  link '~/.default-gems', from: 'default-gems'
-
-  # Shared Shell
-  link '~/.profile.rc.d', from: 'profile.rc.d'
-  link '~/.profile.env.d', from: 'profile.env.d'
-
   # Bash
   link '~/.bash_profile', from: 'bash_profile'
   link '~/.bashrc', from: 'bashrc'
@@ -56,6 +31,36 @@ plan do
   link '~/.p10k.zsh', from: 'p10k.zsh'
 
   link '~/.config/atuin/config.toml', from: 'config/atuin/config.toml'
+  
+  # Shared Shell
+  link '~/.profile.rc.d', from: 'profile.rc.d'
+  link '~/.profile.env.d', from: 'profile.env.d'
+
+  # Shell
+  dir '~/.config'
+  link '~/.config/starship.toml', from: 'config/starship.toml'
+  link '~/.config/neofetch/config.conf', from: 'config/neofetch/config.conf'
+
+  # Tmux
+  link '~/.tmux.conf', from: 'tmux.conf'
+  link '~/.tmux.mac.conf', from: 'tmux.mac.conf'
+
+  # Asdf
+  link '~/.asdfrc', from: 'asdfrc'
+  # asdf_plugin 'direnv', after_install: [
+  #   'asdf direnv setup --shell bash --version system --no-touch-rc-file',
+  #   'asdf direnv setup --shell zsh --version system --no-touch-rc-file',
+  # ]
+  asdf_plugin 'nodejs'
+  asdf_plugin 'opentofu'
+  asdf_plugin 'ruby'
+  asdf_plugin 'rust'
+  asdf_plugin 'terraform'
+  asdf_plugin 'terragrunt'
+
+  # Ruby
+  link '~/.gemrc', from: 'gemrc'
+  link '~/.default-gems', from: 'default-gems'
 
   # vim
   if_exe 'vim' do
@@ -122,11 +127,6 @@ plan do
   unless ENV['SKIP_GIT']
     git_config git_config_hash
   end
-
-  # Shell
-  dir '~/.config'
-  link '~/.config/starship.toml', from: 'config/starship.toml'
-  link '~/.config/neofetch/config.conf', from: 'config/neofetch/config.conf'
 
   # # Go
   # if_exe "go" do
