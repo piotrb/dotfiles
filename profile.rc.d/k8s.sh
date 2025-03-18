@@ -9,5 +9,7 @@ function k() {
 	fi
 }
 
+alias kubectx='kubectl ctx'
+
 export XDG_CONFIG_HOME=$HOME/.config
 

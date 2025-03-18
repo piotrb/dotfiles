@@ -1,10 +1,12 @@
-if [ -x /opt/homebrew/bin/brew ]; then
-  . $(/opt/homebrew/bin/brew --prefix asdf)/libexec/asdf.sh
-elif [ -x /usr/local/bin/brew ]; then
-  . $(brew --prefix asdf)/libexec/asdf.sh
-elif [ -e $HOME/.asdf/asdf.sh ]; then
-  . $HOME/.asdf/asdf.sh
-fi
+# if [ -x /opt/homebrew/bin/brew ]; then
+#   . $(/opt/homebrew/bin/brew --prefix asdf)/libexec/asdf.sh
+# elif [ -x /usr/local/bin/brew ]; then
+#   . $(brew --prefix asdf)/libexec/asdf.sh
+# elif [ -e $HOME/.asdf/asdf.sh ]; then
+#   . $HOME/.asdf/asdf.sh
+# fi
+
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
 if [ -n "$ZSH_VERSION" ]; then
   if [ ! -z "${ASDF_DIR}" ]; then
