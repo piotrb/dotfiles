@@ -1,0 +1,26 @@
+{
+  "recommendations": [
+    "bahramjoharshamshiri.hcl-lsp",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "gamunu.opentofu",
+    "github.vscode-github-actions",
+    "iliazeus.vscode-ansi",
+    "lvdn.terminalbtn",
+    "ms-azuretools.vscode-docker",
+    "ms-python.black-formatter",
+    "ms-python.debugpy",
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-vscode-remote.remote-containers",
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode-remote.remote-ssh-edit",
+    "ms-vscode.makefile-tools",
+    "ms-vscode.remote-explorer",
+    "redhat.vscode-yaml",
+    "rexebin.f12-open-file",
+    "tamasfe.even-better-toml",
+    "tsandall.opa",
+    "vehmloewff.custom-format"
+  ]
+}
