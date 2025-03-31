@@ -1,5 +1,4 @@
-ruby 3.3.4
-terraform 1.5.1
-nodejs 16.14.2
-rust 1.79.0
-opentofu 1.6.3
+#rust 1.79.0
+task latest
+node 20
+ruby 3.4

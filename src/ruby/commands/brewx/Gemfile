@@ -2,9 +2,14 @@ ENV['BUNDLE_BUILD__NOKOGIRI'] = "--use-system-libraries"
 
 source "https://rubygems.org"
 
-gem "activesupport", require: 'active_support/all'
-gem "actionview"
+gem "activesupport", "< 6.0", require: 'active_support/all'
+gem "actionview", "< 6.0"
 
 gem "cri"
 gem "tty-prompt"
 gem "tty-table"
+
+# New ruby dependencies
+gem "mutex_m"
+gem "base64"
+gem "bigdecimal"

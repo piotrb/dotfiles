@@ -45,18 +45,8 @@ plan do
   link '~/.tmux.conf', from: 'tmux.conf'
   link '~/.tmux.mac.conf', from: 'tmux.mac.conf'
 
-  # Asdf
-  link '~/.asdfrc', from: 'asdfrc'
-  # asdf_plugin 'direnv', after_install: [
-  #   'asdf direnv setup --shell bash --version system --no-touch-rc-file',
-  #   'asdf direnv setup --shell zsh --version system --no-touch-rc-file',
-  # ]
-  asdf_plugin 'nodejs'
-  asdf_plugin 'opentofu'
-  asdf_plugin 'ruby'
-  asdf_plugin 'rust'
-  asdf_plugin 'terraform'
-  asdf_plugin 'terragrunt'
+  # Tools
+  link '~/.tool-versions', from: '.tool-versions'
 
   # Ruby
   link '~/.gemrc', from: 'gemrc'

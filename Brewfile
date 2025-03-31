@@ -8,10 +8,6 @@ brew 'git-lfs'
 brew 'tig'
 brew 'act'
 
-# Node
-# brew 'node'
-# brew 'yarn'
-
 # AWS
 cask 'aws-vault'
 brew 'awscli'
@@ -19,16 +15,17 @@ brew 'awscli'
 # Dev Tools
 brew 'the_platinum_searcher'
 # brew 'puma/puma/puma-dev'
-# brew 'terminal-notifier'
 brew 'starship', args: ['HEAD']
-brew 'asdf', args: ['HEAD']
-# brew 'overmind'
+brew 'mise'
 brew 'tmux'
 brew 'neovim'
 brew 'direnv'
 # brew 'localstack'
 brew 'adr-tools'
 brew 'atuin'
+
+# Ruby Deps
+brew 'libyaml'
 
 # System Things
 # brew 'artginzburg/tap/sudo-touchid', start_service: true
@@ -42,7 +39,6 @@ brew 'helm'
 brew 'k9s'
 brew 'krew'
 brew 'kubeseal'
-# brew 'velero'
 
 # Terraform
 # brew 'terraform-docs'
@@ -52,7 +48,15 @@ brew 'kubeseal'
 # brew  'tfsec'
 
 # Lacework
-brew 'lacework/tap/lacework-cli'
+# brew 'lacework/tap/lacework-cli'
+
+# Spacelift
+brew 'spacelift-io/spacelift/spacectl'
 
 # Depenedencies
 brew 'libpq'
+
+cask 'notunes'
+
+brew 'common-fate/granted/granted'
+brew 'temporal'
