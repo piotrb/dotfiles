@@ -6,7 +6,7 @@ brew 'gh'
 # brew 'git-gui'
 brew 'git-lfs'
 brew 'tig'
-brew 'act'
+# brew 'act'
 
 # AWS
 cask 'aws-vault'
@@ -15,13 +15,13 @@ brew 'awscli'
 # Dev Tools
 brew 'the_platinum_searcher'
 # brew 'puma/puma/puma-dev'
-brew 'starship', args: ['HEAD']
+# brew 'starship', args: ['HEAD']
 brew 'mise'
 brew 'tmux'
 brew 'neovim'
 brew 'direnv'
 # brew 'localstack'
-brew 'adr-tools'
+# brew 'adr-tools'
 brew 'atuin'
 
 # Ruby Deps

@@ -92,7 +92,8 @@ plan do
     },
     push: {
       default: 'current',
-      followTags: true
+      followTags: true,
+      autoSetupRemote: true,
     },
     status: {
       showUntrackedFiles: 'all'
