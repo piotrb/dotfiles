@@ -4,3 +4,6 @@ if command -v nvim >/dev/null; then
 else
   alias vimdiff="vim -d"
 fi
+
+export EDITOR=vim
+export GIT_EDITOR=vim

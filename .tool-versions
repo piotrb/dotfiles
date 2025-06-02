@@ -2,3 +2,4 @@
 task latest
 node 20
 ruby 3.4
+yarn 4.6

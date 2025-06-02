@@ -1,5 +1,3 @@
-#!/bin/bash - 
-
 function tf() {
 	cmd_args=( "$@" )
 	tf_cmd="${MUX_TF_BASE_CMD:-terraform}"
