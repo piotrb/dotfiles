@@ -2,6 +2,18 @@
 # _BENCHMARK=true
 _BENCHMARK_FILE=~/.tool-shell-integrations-benchmark.txt
 
+function _current_shell() {
+    if [ -n "$ZSH_VERSION" ]; then
+        echo "zsh"
+    elif [ -n "$BASH_VERSION" ]; then
+        echo "bash"
+    else
+        echo "unknown"
+    fi
+}
+
+current_shell=$(_current_shell)
+
 function _hook_shell_integration_single() {
     INTEGRATION_DIR=$1
     HOOK_TYPE=$2

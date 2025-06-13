@@ -17,10 +17,12 @@
     "ms-vscode-remote.remote-ssh-edit",
     "ms-vscode.makefile-tools",
     "ms-vscode.remote-explorer",
-    "redhat.vscode-yaml",
     "rexebin.f12-open-file",
     "tamasfe.even-better-toml",
     "tsandall.opa",
     "vehmloewff.custom-format"
+  ],
+  "unwantedRecommendations": [
+    "redhat.vscode-yaml"
   ]
 }

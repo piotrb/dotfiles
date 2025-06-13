@@ -1,5 +1,5 @@
-if [ -n "$ZSH_VERSION" ]; then
+if [ $current_shell = "zsh" ]; then
     eval "$(atuin init zsh)"
-elif [ -n "$BASH_VERSION" ]; then
+elif [ $current_shell = "bash" ]; then
     eval "$(atuin init bash)"
 fi

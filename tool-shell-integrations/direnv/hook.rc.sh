@@ -1,5 +1,5 @@
-if [ -n "$ZSH_VERSION" ]; then
+if [ $current_shell = "zsh" ]; then
     emulate zsh -c "$(direnv hook zsh)"
-elif [ -n "$BASH_VERSION" ]; then
+elif [ $current_shell = "bash" ]; then
     eval "$(direnv hook bash)"
 fi
