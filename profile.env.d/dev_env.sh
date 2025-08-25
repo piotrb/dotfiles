@@ -8,3 +8,5 @@ ulimit -n 2048
 alias fixtty="stty sane"
 
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+export RBENV_ROOT=~/.rbenv

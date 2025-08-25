@@ -18,12 +18,22 @@ function _hook_shell_integration_single() {
     INTEGRATION_DIR=$1
     HOOK_TYPE=$2
 
+    CURRENT_SHELL=$(_current_shell)
+
     if [ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.sh ]; then
         if [ "$_DEBUG" = true ]; then
             tool_name=$(basename $INTEGRATION_DIR)
             echo " [debug] hooking $tool_name ($HOOK_TYPE) ..."
         fi
         . $INTEGRATION_DIR/hook.$HOOK_TYPE.sh
+    fi
+
+    if [ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.$CURRENT_SHELL ]; then
+        if [ "$_DEBUG" = true ]; then
+            tool_name=$(basename $INTEGRATION_DIR)
+            echo " [debug] hooking $tool_name ($HOOK_TYPE) [$CURRENT_SHELL] ..."
+        fi
+        . $INTEGRATION_DIR/hook.$HOOK_TYPE.$CURRENT_SHELL
     fi
 }
 
