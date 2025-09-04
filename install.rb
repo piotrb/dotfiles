@@ -59,7 +59,7 @@ plan do
     link '~/.vim/bundle.vim', from: 'vim/bundle.vim'
     link '~/.vimrc', from: 'vimrc'
     link '~/.gvimrc.after', from: 'gvimrc.after'
-    run "vim -u /dev/null -N -c 'source ~/.vim/bundle.vim' +BundleInstall +qall",
+    run "vim -en -u ~/.vim/bundle.vim -c BundleInstall -c qall",
         state: 'vim-plugins',
         state_globs: ['~/.vim/**/*', '~/.vimrc']
   end
