@@ -13,6 +13,11 @@ module LinkModule
       FileUtils.mkdir_p(dst)
     end
 
+    def rm_rf(dst, **kwargs)
+      puts "rm_rf: #{dst}"
+      FileUtils.rm_rf(dst)
+    end
+
     def ln_s(src, dst, **kwargs)
       puts "ln: #{src} -> #{dst}"
       FileUtils.ln_s(src, dst)
@@ -37,7 +42,11 @@ module LinkModule
             need_symlink = true
           end
         else
-          plan << action(:unlink, dst)
+          if File.directory?(dst)
+            plan << action(:rm_rf, dst)
+          else
+            plan << action(:unlink, dst)
+          end
           need_symlink = true
         end
       end

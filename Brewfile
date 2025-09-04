@@ -11,6 +11,7 @@ brew 'tig'
 # AWS
 cask 'aws-vault'
 brew 'awscli'
+brew 'aws-sso-util'
 
 # Dev Tools
 brew 'the_platinum_searcher'
@@ -23,6 +24,8 @@ brew 'direnv'
 # brew 'localstack'
 # brew 'adr-tools'
 brew 'atuin'
+brew 'devcontainer'
+brew 'dive'
 
 # Ruby Deps
 brew 'libyaml'
@@ -59,4 +62,3 @@ brew 'libpq'
 cask 'notunes'
 
 brew 'common-fate/granted/granted'
-brew 'temporal'
