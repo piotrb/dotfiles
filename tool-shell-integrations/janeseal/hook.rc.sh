@@ -1,1 +1,1 @@
-export PATH=$PATH:~/Work/sealed-secrets-public-certificates/bin
+export PATH=$PATH:~/Work/janeseal/bin
