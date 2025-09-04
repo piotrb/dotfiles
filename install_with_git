@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+if which ruby > /dev/null; then
+  NON_INTERACTIVE=1 ruby ./install.rb
+else
+  echo "Must have ruby installed ..."
+  exit 1
+fi
