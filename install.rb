@@ -91,11 +91,13 @@ plan do
       tags: true
     },
     commit: {
-      template: File.expand_path('~/.gitmessage')
+      # template: File.expand_path('~/.gitmessage')
+      template: '~/.gitmessage'
     },
     core: {
       mergeoptions: '--no-edit',
-      excludesfile: File.expand_path('~/.gitignore'),
+      # excludesfile: File.expand_path('~/.gitignore'),
+      excludesfile: '~/.gitignore',
       pager: 'less -FX'
     },
     push: {
