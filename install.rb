@@ -17,7 +17,7 @@ plan do
   end
 
   # Bash
-  link '~/.bash_profile', from: 'bash_profile'
+  link '~/.profile', from: 'bash_profile'
   link '~/.bashrc', from: 'bashrc'
 
   # Zsh Configs

@@ -61,4 +61,4 @@ brew 'libpq'
 
 cask 'notunes'
 
-brew 'common-fate/granted/granted'
+# brew 'common-fate/granted/granted'
