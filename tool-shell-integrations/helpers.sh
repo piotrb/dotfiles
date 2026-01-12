@@ -103,10 +103,13 @@ function _hook_shell_integrations() {
     local HOOK_TYPE=$2
 
     if [ "$_BENCHMARK" = true ]; then
-        rm -f $_BENCHMARK_FILE
-        touch $_BENCHMARK_FILE
-        echo "--- Benchmark ---" >> $_BENCHMARK_FILE
-        echo "--- $(date) ---" >> $_BENCHMARK_FILE
+        # Create a benchmark file specific to this hook type
+        BENCHMARK_FILE="${_BENCHMARK_FILE%.txt}-${HOOK_TYPE}.txt"
+
+        rm -f $BENCHMARK_FILE
+        touch $BENCHMARK_FILE
+        echo "--- Benchmark ($HOOK_TYPE) ---" >> $BENCHMARK_FILE
+        echo "--- $(date) ---" >> $BENCHMARK_FILE
 
         all_start_time=$(($(date +%s)*1000 + $(date +%N)/1000000))
     fi
@@ -128,13 +131,13 @@ function _hook_shell_integrations() {
 
             tool_name=$(basename $i)
 
-            echo "   [debug] Execution time for $tool_name: ${duration} ms" >> $_BENCHMARK_FILE
+            echo "   [debug] Execution time for $tool_name: ${duration} ms" >> $BENCHMARK_FILE
         fi
     done
 
     if [ "$_BENCHMARK" = true ]; then
         all_end_time=$(($(date +%s)*1000 + $(date +%N)/1000000))
         all_duration=$((all_end_time - all_start_time))
-        echo "--- Total execution time: ${all_duration} ms ---" >> $_BENCHMARK_FILE
+        echo "--- Total execution time: ${all_duration} ms ---" >> $BENCHMARK_FILE
     fi
 }

@@ -3,17 +3,16 @@ module.exports = {
     browser: false,
     es2021: true,
   },
-  extends: [
-    'airbnb-base',
-  ],
+  extends: ['airbnb-base'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 12,
     sourceType: 'module',
   },
-  plugins: [
-    '@typescript-eslint',
-  ],
+  plugins: ['@typescript-eslint'],
   rules: {
+    'import/prefer-default-export': 'off',
+    'no-console': 'off',
+    'import/extensions': 'off',
   },
 };
