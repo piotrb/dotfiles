@@ -1,6 +1,7 @@
 #rust 1.79.0
 task   latest
-nodejs 20
+#nodejs 20
 ruby   3.4
 yarn   4.6
 python 3.12
+uv 0.7

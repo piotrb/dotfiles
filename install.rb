@@ -101,7 +101,7 @@ plan do
       pager: 'less -FX'
     },
     push: {
-      default: 'current',
+      default: 'simple',
       followTags: true,
       autoSetupRemote: true,
     },
