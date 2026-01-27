@@ -1,0 +1,11 @@
+#!/bin/bash
+
+function resolve_path {
+  ruby -e 'resolved = File.symlink?(ARGV[0]) ? File.readlink(ARGV[0]) : ARGV[0]; puts File.expand_path(resolved)' "${1}"
+}
+
+abs=$(resolve_path "$BASH_SOURCE")
+
+cd $(dirname "$(dirname "${abs}")")
+
+./node_modules/.bin/ts-node src/gh-notifications.ts "$@"
