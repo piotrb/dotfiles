@@ -1,5 +1,76 @@
 #!/usr/bin/env python3
-"""Manage multiple Claude config profiles via symlink swapping."""
+"""
+claude_swap — manage multiple Claude Code profiles via symlink swapping.
+
+OVERVIEW
+--------
+Claude Code stores all its state in two locations:
+
+  ~/.claude/          directory — settings, projects, MCP server configs, etc.
+  ~/.claude.json      file      — global config (model preferences, etc.)
+
+And its authentication in the macOS Keychain under two service names:
+
+  "Claude Code"               — primary auth token (subscription or API key)
+  "Claude Code-credentials"   — credential vault (MCP server logins, etc.)
+
+claude_swap manages multiple named profiles, each with their own copy of
+these files and their own saved keychain credentials. Switching profiles
+atomically swaps both the filesystem state and the keychain entries.
+
+Profiles are stored in:  ~/.claude-profiles/<profile-name>/
+
+FIRST RUN
+---------
+If you already have Claude Code set up and want to turn your current config
+into a named profile:
+
+  claude_swap adopt <profile-name>
+
+This moves ~/.claude and ~/.claude.json into the profile directory and
+replaces them with symlinks. It also snapshots your current keychain
+credentials into a profile-specific keychain entry.
+
+If you want to start fresh with a brand new empty profile:
+
+  claude_swap new <profile-name>
+
+This creates an empty ~/.claude directory and a minimal ~/.claude.json,
+stores them as a new profile, and activates it. You will need to log in
+to Claude Code again after this.
+
+SWITCHING PROFILES
+------------------
+  claude_swap switch <profile-name>
+
+Before switching, the current profile's keychain credentials are saved.
+Then both Claude keychain entries are cleared, the symlinks are repointed,
+and the target profile's saved credentials are restored. Claude Code does
+not need to be restarted on macOS — the next operation will pick up the
+new credentials automatically.
+
+COMMANDS
+--------
+  adopt <profile>   Adopt the current ~/.claude* as a named profile
+  new <profile>     Create a blank profile and activate it
+  list              List available profiles (marks the active one)
+  switch <profile>  Switch to a named profile
+  debug-auth        Show Claude keychain entries (for troubleshooting)
+
+NOTES
+-----
+- adopt/new/switch will refuse to proceed if ~/.claude or ~/.claude.json
+  are real files rather than symlinks (safety guard against data loss).
+- Credentials are stored in the keychain using the naming convention:
+    claude_swap:<profile>:<original-service-name>
+  e.g. claude_swap:work:Claude Code
+- macOS only (relies on the `security` CLI to access the Keychain).
+
+CREDITS
+-------
+The keychain-based auth switching approach is inspired by:
+  https://github.com/khromov/claude-code-auth-switcher
+"""
 
 import argparse
 import os
@@ -21,6 +92,22 @@ KEYCHAIN_SERVICE_VAULT = "Claude Code-credentials"  # MCP logins and other crede
 def err(msg: str) -> None:
     print(f"error: {msg}", file=sys.stderr)
     sys.exit(1)
+
+
+def unmanaged_config_paths() -> list[Path]:
+    """Return any ~/.claude* paths that exist as real files rather than managed symlinks."""
+    return [p for p in (CLAUDE_DIR, CLAUDE_JSON) if p.exists() and not p.is_symlink()]
+
+
+def assert_no_unmanaged_config() -> None:
+    """Abort if any Claude config paths are real files instead of managed symlinks."""
+    unmanaged = unmanaged_config_paths()
+    if unmanaged:
+        paths = ", ".join(str(p) for p in unmanaged)
+        err(
+            f"existing config found: {paths}\n"
+            "run 'adopt' first to bring it under management"
+        )
 
 
 def current_profile() -> str | None:
@@ -171,13 +258,7 @@ def activate_profile(profile: str, current: str | None) -> None:
     """Save current auth, swap symlinks, and restore auth for the given profile."""
     dest = PROFILES_DIR / profile
 
-    # Refuse to clobber real files/directories — only managed symlinks are safe to replace
-    real = [p for p in (CLAUDE_DIR, CLAUDE_JSON) if p.exists() and not p.is_symlink()]
-    if real:
-        paths = ", ".join(str(p) for p in real)
-        err(
-            f"aborting — these are real files, not symlinks: {paths}\nrun 'adopt' first to bring them under management"
-        )
+    assert_no_unmanaged_config()
 
     if current is not None:
         print(f"saving auth for current profile '{current}'...")
@@ -245,6 +326,8 @@ def cmd_new(profile: str) -> None:
     dest = PROFILES_DIR / profile
     if dest.exists():
         err(f"profile '{profile}' already exists")
+
+    assert_no_unmanaged_config()
 
     dest.mkdir(parents=True)
 
