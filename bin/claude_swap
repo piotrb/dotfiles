@@ -55,7 +55,6 @@ COMMANDS
   new <profile>     Create a blank profile and activate it
   list              List available profiles (marks the active one)
   switch <profile>  Switch to a named profile
-  debug-auth        Show Claude keychain entries (for troubleshooting)
 
 NOTES
 -----
@@ -244,16 +243,6 @@ def restore_profile_auth(profile: str) -> bool:
     return restored > 0
 
 
-def cmd_debug_auth() -> None:
-    entries = find_claude_keychain_entries()
-    if not entries:
-        print("no Claude credentials found in keychain")
-        return
-    for service, auth_type, creds in entries:
-        masked = f"{creds[:8]}...{creds[-4:]}" if len(creds) > 12 else "***"
-        print(f"  {auth_type:<14} service='{service}'  creds={masked}")
-
-
 def activate_profile(profile: str, current: str | None) -> None:
     """Save current auth, swap symlinks, and restore auth for the given profile."""
     dest = PROFILES_DIR / profile
@@ -380,8 +369,6 @@ commands:
     switch_p = sub.add_parser("switch", help="switch to a named profile")
     switch_p.add_argument("profile", help="profile name to switch to")
 
-    sub.add_parser("debug-auth", help="[debug] show Claude keychain entries")
-
     args = parser.parse_args()
 
     if args.command == "adopt":
@@ -392,8 +379,6 @@ commands:
         cmd_new(args.profile)
     elif args.command == "switch":
         cmd_switch(args.profile)
-    elif args.command == "debug-auth":
-        cmd_debug_auth()
     else:
         parser.print_help()
         sys.exit(1)
