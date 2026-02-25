@@ -1,0 +1,320 @@
+#!/usr/bin/env python3
+"""Manage multiple Claude config profiles via symlink swapping."""
+
+import argparse
+import os
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+HOME = Path.home()
+PROFILES_DIR = HOME / ".claude-profiles"
+CLAUDE_DIR = HOME / ".claude"
+CLAUDE_JSON = HOME / ".claude.json"
+
+# Keychain service names Claude Code uses
+KEYCHAIN_SERVICE_MAIN = "Claude Code"  # primary auth token
+KEYCHAIN_SERVICE_VAULT = "Claude Code-credentials"  # MCP logins and other credentials
+
+
+def err(msg: str) -> None:
+    print(f"error: {msg}", file=sys.stderr)
+    sys.exit(1)
+
+
+def current_profile() -> str | None:
+    """Return the name of the currently active profile, or None if not managed."""
+    if CLAUDE_DIR.is_symlink():
+        target = CLAUDE_DIR.resolve()
+        if target.is_relative_to(PROFILES_DIR):
+            return target.parent.name
+    return None
+
+
+def _keychain_read(service: str) -> str | None:
+    """Return the keychain password for the given service, or None if not found."""
+    result = subprocess.run(
+        [
+            "security",
+            "find-generic-password",
+            "-a",
+            os.environ["USER"],
+            "-w",
+            "-s",
+            service,
+        ],
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip() if result.returncode == 0 else None
+
+
+def _keychain_write(service: str, creds: str) -> None:
+    """Write (or overwrite) a keychain entry for the given service."""
+    # Delete any existing entry first — add-generic-password won't overwrite
+    subprocess.run(
+        [
+            "security",
+            "delete-generic-password",
+            "-a",
+            os.environ["USER"],
+            "-s",
+            service,
+        ],
+        capture_output=True,
+    )
+    result = subprocess.run(
+        [
+            "security",
+            "add-generic-password",
+            "-a",
+            os.environ["USER"],
+            "-s",
+            service,
+            "-w",
+            creds,
+        ],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        err(f"failed to write keychain entry for '{service}': {result.stderr.strip()}")
+
+
+AuthEntry = tuple[str, str, str]  # (service_name, auth_type, raw_credentials)
+
+
+def find_claude_keychain_entries() -> list[AuthEntry]:
+    """Return all Claude credential entries currently present in the keychain."""
+    entries: list[AuthEntry] = []
+    for service, label in (
+        (KEYCHAIN_SERVICE_MAIN, "main"),
+        (KEYCHAIN_SERVICE_VAULT, "vault"),
+    ):
+        creds = _keychain_read(service)
+        if creds is not None:
+            entries.append((service, label, creds))
+    return entries
+
+
+def profile_keychain_service(profile: str, original_service: str) -> str:
+    """Keychain service name used to store a profile's credentials.
+
+    Encodes the original Claude service name so restore knows where to put it back.
+    e.g. 'claude_swap:work:Claude Code-credentials'
+    """
+    return f"claude_swap:{profile}:{original_service}"
+
+
+def save_current_auth_to_profile(profile: str) -> None:
+    """Snapshot all active Claude keychain credentials into profile-specific entries."""
+    entries = find_claude_keychain_entries()
+
+    if len(entries) == 0:
+        err("no Claude credentials found in keychain — nothing to save")
+
+    for original_service, auth_type, creds in entries:
+        dest_service = profile_keychain_service(profile, original_service)
+        _keychain_write(dest_service, creds)
+        print(f"  saved {auth_type} auth to keychain entry '{dest_service}'")
+
+
+def clear_active_claude_auth() -> None:
+    """Delete both Claude login entries from the keychain."""
+    for service in (KEYCHAIN_SERVICE_MAIN, KEYCHAIN_SERVICE_VAULT):
+        result = subprocess.run(
+            [
+                "security",
+                "delete-generic-password",
+                "-a",
+                os.environ["USER"],
+                "-s",
+                service,
+            ],
+            capture_output=True,
+        )
+        if result.returncode == 0:
+            print(f"  deleted keychain entry '{service}'")
+        else:
+            print(f"  skipped '{service}' (not found)")
+
+
+def restore_profile_auth(profile: str) -> bool:
+    """Copy saved credentials for a profile back into the active Claude keychain slots.
+
+    Returns True if any credentials were restored, False if none were saved.
+    """
+    restored = 0
+    for original_service in (KEYCHAIN_SERVICE_MAIN, KEYCHAIN_SERVICE_VAULT):
+        stored_service = profile_keychain_service(profile, original_service)
+        creds = _keychain_read(stored_service)
+        if creds is None:
+            continue
+        _keychain_write(original_service, creds)
+        print(f"  restored '{stored_service}' → '{original_service}'")
+        restored += 1
+    return restored > 0
+
+
+def cmd_debug_auth() -> None:
+    entries = find_claude_keychain_entries()
+    if not entries:
+        print("no Claude credentials found in keychain")
+        return
+    for service, auth_type, creds in entries:
+        masked = f"{creds[:8]}...{creds[-4:]}" if len(creds) > 12 else "***"
+        print(f"  {auth_type:<14} service='{service}'  creds={masked}")
+
+
+def activate_profile(profile: str, current: str | None) -> None:
+    """Save current auth, swap symlinks, and restore auth for the given profile."""
+    dest = PROFILES_DIR / profile
+
+    # Refuse to clobber real files/directories — only managed symlinks are safe to replace
+    real = [p for p in (CLAUDE_DIR, CLAUDE_JSON) if p.exists() and not p.is_symlink()]
+    if real:
+        paths = ", ".join(str(p) for p in real)
+        err(
+            f"aborting — these are real files, not symlinks: {paths}\nrun 'adopt' first to bring them under management"
+        )
+
+    if current is not None:
+        print(f"saving auth for current profile '{current}'...")
+        save_current_auth_to_profile(current)
+
+    print("clearing active Claude auth...")
+    clear_active_claude_auth()
+
+    for path in (CLAUDE_DIR, CLAUDE_JSON):
+        target = dest / path.name
+        if not target.exists():
+            print(f"  skipped {path.name} (not in profile '{profile}')")
+            continue
+        if path.is_symlink():
+            path.unlink()
+        path.symlink_to(target)
+        print(f"  linked {path} → {target}")
+
+    print(f"restoring auth for profile '{profile}'...")
+    if not restore_profile_auth(profile):
+        print(f"  no saved auth for '{profile}' — login required")
+
+
+def cmd_adopt(profile: str) -> None:
+    dest = PROFILES_DIR / profile
+    if dest.exists():
+        err(f"profile '{profile}' already exists at {dest}")
+
+    dest.mkdir(parents=True, exist_ok=True)
+
+    for src in (CLAUDE_DIR, CLAUDE_JSON):
+        if src.exists() or src.is_symlink():
+            if src.is_symlink():
+                # Already a symlink — resolve and relink rather than move
+                resolved = src.resolve()
+                src.unlink()
+                shutil.move(str(resolved), dest / src.name)
+            else:
+                shutil.move(str(src), dest / src.name)
+            print(f"  moved {src} → {dest / src.name}")
+        else:
+            print(f"  skipped {src} (not found)")
+
+    activate_profile(profile, current_profile())
+    print(f"adopted as profile '{profile}'")
+
+
+def cmd_list() -> None:
+    if not PROFILES_DIR.exists():
+        print("no profiles directory found — run 'adopt' first")
+        return
+
+    profiles = sorted(p.name for p in PROFILES_DIR.iterdir() if p.is_dir())
+    if not profiles:
+        print("no profiles found")
+        return
+
+    active = current_profile()
+    for name in profiles:
+        marker = " (active)" if name == active else ""
+        print(f"  {name}{marker}")
+
+
+def cmd_new(profile: str) -> None:
+    dest = PROFILES_DIR / profile
+    if dest.exists():
+        err(f"profile '{profile}' already exists")
+
+    dest.mkdir(parents=True)
+
+    claude_dir = dest / CLAUDE_DIR.name
+    claude_dir.mkdir()
+    print(f"  created {claude_dir}")
+
+    claude_json = dest / CLAUDE_JSON.name
+    claude_json.write_text("{}\n")
+    print(f"  created {claude_json}")
+
+    activate_profile(profile, current_profile())
+    print(f"created and activated profile '{profile}'")
+
+
+def cmd_switch(profile: str) -> None:
+    if not (PROFILES_DIR / profile).exists():
+        err(f"profile '{profile}' not found — use 'adopt' to create it first")
+
+    current = current_profile()
+    if current == profile:
+        err(f"profile '{profile}' is already active")
+
+    activate_profile(profile, current)
+    print(f"switched to profile '{profile}'")
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Swap Claude config profiles via symlinks.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""\
+commands:
+  adopt <profile>   move current ~/.claude* into a named profile and symlink it
+  new <profile>     create a blank profile and activate it
+  list              show all available profiles
+  switch <profile>  switch the active profile
+        """,
+    )
+    sub = parser.add_subparsers(dest="command", metavar="<command>")
+
+    adopt_p = sub.add_parser("adopt", help="adopt current config as a named profile")
+    adopt_p.add_argument("profile", help="name for the new profile")
+
+    sub.add_parser("list", help="list available profiles")
+
+    new_p = sub.add_parser("new", help="create a blank profile and activate it")
+    new_p.add_argument("profile", help="name for the new profile")
+
+    switch_p = sub.add_parser("switch", help="switch to a named profile")
+    switch_p.add_argument("profile", help="profile name to switch to")
+
+    sub.add_parser("debug-auth", help="[debug] show Claude keychain entries")
+
+    args = parser.parse_args()
+
+    if args.command == "adopt":
+        cmd_adopt(args.profile)
+    elif args.command == "list":
+        cmd_list()
+    elif args.command == "new":
+        cmd_new(args.profile)
+    elif args.command == "switch":
+        cmd_switch(args.profile)
+    elif args.command == "debug-auth":
+        cmd_debug_auth()
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()

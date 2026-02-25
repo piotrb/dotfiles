@@ -36,12 +36,12 @@ brew 'wget'
 brew 'jq'
 
 # K8s tools
-brew 'argocd'
+#brew 'argocd'
 # brew 'eksctl'
-brew 'helm'
-brew 'k9s'
-brew 'krew'
-brew 'kubeseal'
+#brew 'helm'
+#brew 'k9s'
+#brew 'krew'
+#brew 'kubeseal'
 
 # Terraform
 # brew 'terraform-docs'
