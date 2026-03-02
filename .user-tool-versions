@@ -1,0 +1,12 @@
+#rust 1.79.0
+task   latest
+#nodejs 20
+ruby   3.4
+yarn   4.6
+python 3.12
+uv 0.7
+helm 4
+kubectx 0.9
+kubectl 1.35
+kubelogin 1.35
+gh 2

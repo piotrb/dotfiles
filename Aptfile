@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+# Core (from bootstrap-linux.sh)
+deb 'neovim'
+deb 'git'
+deb 'zsh'
+deb 'tig'

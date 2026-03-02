@@ -10,6 +10,10 @@ plan do
     brew 'Brewfile'
   end
 
+  if_exe 'apt-get' do
+    apt 'Aptfile'
+  end
+
   # Bin
   dir '~/bin'
   Dir['bin/*'].each do |fn|
@@ -31,7 +35,7 @@ plan do
   link '~/.p10k.zsh', from: 'p10k.zsh'
 
   link '~/.config/atuin/config.toml', from: 'config/atuin/config.toml'
-  
+
   # Shared Shell
   link '~/.profile.rc.d', from: 'profile.rc.d'
   link '~/.profile.env.d', from: 'profile.env.d'
@@ -46,7 +50,8 @@ plan do
   link '~/.tmux.mac.conf', from: 'tmux.mac.conf'
 
   # Tools
-  link '~/.tool-versions', from: '.tool-versions'
+  link '~/.tool-versions', from: '.user-tool-versions'
+  link '~/mise.toml', from: 'mise.toml'
 
   # Ruby
   link '~/.gemrc', from: 'gemrc'
