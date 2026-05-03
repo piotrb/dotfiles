@@ -49,10 +49,6 @@ plan do
   link '~/.tmux.conf', from: 'tmux.conf'
   link '~/.tmux.mac.conf', from: 'tmux.mac.conf'
 
-  # Tools
-  link '~/.tool-versions', from: '.user-tool-versions'
-  link '~/mise.toml', from: 'mise.toml'
-
   # Ruby
   link '~/.gemrc', from: 'gemrc'
   link '~/.default-gems', from: 'default-gems'

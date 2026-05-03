@@ -1,7 +1,3 @@
-# _DEBUG=true
-# _BENCHMARK=true
-_BENCHMARK_FILE=~/.tool-shell-integrations-benchmark.txt
-
 # Track which integrations have been hooked at which level
 # Format: associative array with keys like "integration_name:hook_type"
 # Only declare if not already declared (to preserve state across multiple sourcing)
@@ -24,39 +20,63 @@ function _is_integration_hooked() {
     [ -n "$result" ]
 }
 
-function _current_shell() {
-    if [ -n "$ZSH_VERSION" ]; then
-        echo "zsh"
-    elif [ -n "$BASH_VERSION" ]; then
-        echo "bash"
-    else
-        echo "unknown"
-    fi
-}
-
-current_shell=$(_current_shell)
+# Inline assignment - no fork
+if [[ -n $ZSH_VERSION ]]; then
+    current_shell="zsh"
+elif [[ -n $BASH_VERSION ]]; then
+    current_shell="bash"
+else
+    current_shell="unknown"
+fi
 
 function _hook_shell_integration_single() {
     INTEGRATION_DIR=$1
     HOOK_TYPE=$2
 
-    CURRENT_SHELL=$(_current_shell)
-
     if [ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.sh ]; then
-        if [ "$_DEBUG" = true ]; then
-            tool_name=$(basename $INTEGRATION_DIR)
-            echo " [debug] hooking $tool_name ($HOOK_TYPE) ..."
-        fi
         . $INTEGRATION_DIR/hook.$HOOK_TYPE.sh
     fi
 
-    if [ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.$CURRENT_SHELL ]; then
-        if [ "$_DEBUG" = true ]; then
-            tool_name=$(basename $INTEGRATION_DIR)
-            echo " [debug] hooking $tool_name ($HOOK_TYPE) [$CURRENT_SHELL] ..."
-        fi
-        . $INTEGRATION_DIR/hook.$HOOK_TYPE.$CURRENT_SHELL
+    if [ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.$current_shell ]; then
+        . $INTEGRATION_DIR/hook.$HOOK_TYPE.$current_shell
     fi
+}
+
+function _debug() {
+    echo "$@" >> ~/.shell-debug-log.txt
+}
+
+function _detect_integration() {
+    local dir=$1
+    local name=$(basename $dir)
+    local ec=0
+    local method=""
+
+    if [[ -f $dir/detect.command ]]; then
+        method="command"
+        (( $+commands[${$(<$dir/detect.command)}] ))
+        ec=$?
+    elif [[ -f $dir/detect.path ]]; then
+        method="path"
+        [[ -e ${$(<$dir/detect.path)} ]]
+        ec=$?
+    elif [[ -f $dir/detect.env ]]; then
+        method="path"
+        local var=${$(<$dir/detect.env)%%=*}
+        local val=${$(<$dir/detect.env)#*=}
+        [[ ${(P)var} == $val ]]
+        ec=$?
+    elif [[ -f $dir/detect.sh ]]; then
+        method="detect.sh"
+        ( . $dir/detect.sh ) 1>/dev/null 2>/dev/null
+        ec=$?
+    else
+        return 0  # no detect = always enabled
+    fi
+
+    local status_str=$( (( ec == 0 )) && echo "detected" || echo "not detected" )
+    _debug "$name (via $method) $status_str"
+    return $ec
 }
 
 function _hook_shell_integration_detect() {
@@ -64,36 +84,29 @@ function _hook_shell_integration_detect() {
     local HOOK_TYPE=$2
     local INTEGRATION_NAME=$(basename $INTEGRATION_DIR)
 
-    # detected if detect script is not found, to allow for "always detect" integrations
-    local DETECTED=0
-    if [ -f $INTEGRATION_DIR/detect.sh ]; then
-        bash $INTEGRATION_DIR/detect.sh
-        DETECTED=$?
+    _detect_integration $INTEGRATION_DIR || return 0
+
+    if [ "$HOOK_TYPE" = "env" ]; then
+        _hook_shell_integration_single $INTEGRATION_DIR $HOOK_TYPE
+        _mark_integration_hooked $INTEGRATION_NAME "env"
     fi
 
-    if [ $DETECTED -eq 0 ]; then
-        if [ "$HOOK_TYPE" = "env" ]; then
-            _hook_shell_integration_single $INTEGRATION_DIR $HOOK_TYPE
+    if [ "$HOOK_TYPE" = "rc" ]; then
+        _hook_shell_integration_single $INTEGRATION_DIR $HOOK_TYPE
+        _mark_integration_hooked $INTEGRATION_NAME "rc"
+    fi
+
+    if [ "$HOOK_TYPE" = "both" ]; then
+        # Hook env if not already hooked
+        if ! _is_integration_hooked $INTEGRATION_NAME "env"; then
+            _hook_shell_integration_single $INTEGRATION_DIR "env"
             _mark_integration_hooked $INTEGRATION_NAME "env"
         fi
-
-        if [ "$HOOK_TYPE" = "rc" ]; then
-            _hook_shell_integration_single $INTEGRATION_DIR $HOOK_TYPE
+        
+        # Hook rc if not already hooked
+        if ! _is_integration_hooked $INTEGRATION_NAME "rc"; then
+            _hook_shell_integration_single $INTEGRATION_DIR "rc"
             _mark_integration_hooked $INTEGRATION_NAME "rc"
-        fi
-
-        if [ "$HOOK_TYPE" = "both" ]; then
-            # Hook env if not already hooked
-            if ! _is_integration_hooked $INTEGRATION_NAME "env"; then
-                _hook_shell_integration_single $INTEGRATION_DIR "env"
-                _mark_integration_hooked $INTEGRATION_NAME "env"
-            fi
-            
-            # Hook rc if not already hooked
-            if ! _is_integration_hooked $INTEGRATION_NAME "rc"; then
-                _hook_shell_integration_single $INTEGRATION_DIR "rc"
-                _mark_integration_hooked $INTEGRATION_NAME "rc"
-            fi
         fi
     fi
 }
@@ -102,42 +115,7 @@ function _hook_shell_integrations() {
     local TOOL_SHELL_INTEGRATIONS_DIR=$1
     local HOOK_TYPE=$2
 
-    if [ "$_BENCHMARK" = true ]; then
-        # Create a benchmark file specific to this hook type
-        BENCHMARK_FILE="${_BENCHMARK_FILE%.txt}-${HOOK_TYPE}.txt"
-
-        rm -f $BENCHMARK_FILE
-        touch $BENCHMARK_FILE
-        echo "--- Benchmark ($HOOK_TYPE) ---" >> $BENCHMARK_FILE
-        echo "--- $(date) ---" >> $BENCHMARK_FILE
-
-        all_start_time=$(($(date +%s)*1000 + $(date +%N)/1000000))
-    fi
-
     for i in $(find $TOOL_SHELL_INTEGRATIONS_DIR/* -type d); do
-        if [ "$_BENCHMARK" = true ]; then
-            # Capture the start time in milliseconds for each item
-            start_time=$(($(date +%s)*1000 + $(date +%N)/1000000))
-        fi
-
         _hook_shell_integration_detect $i $HOOK_TYPE
-
-        if [ "$_BENCHMARK" = true ]; then
-            # Capture the end time in milliseconds for each item
-            end_time=$(($(date +%s)*1000 + $(date +%N)/1000000))
-
-            # Calculate the duration for each item
-            duration=$((end_time - start_time))
-
-            tool_name=$(basename $i)
-
-            echo "   [debug] Execution time for $tool_name: ${duration} ms" >> $BENCHMARK_FILE
-        fi
     done
-
-    if [ "$_BENCHMARK" = true ]; then
-        all_end_time=$(($(date +%s)*1000 + $(date +%N)/1000000))
-        all_duration=$((all_end_time - all_start_time))
-        echo "--- Total execution time: ${all_duration} ms ---" >> $BENCHMARK_FILE
-    fi
 }

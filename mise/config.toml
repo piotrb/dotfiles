@@ -1,3 +1,6 @@
+[settings]
+ruby.compile=false
+
 [tools]
 ruby = "3.4"
 gh = "2"

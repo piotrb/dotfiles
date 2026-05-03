@@ -10,4 +10,5 @@ TOOL_SHELL_INTEGRATIONS_DIR=$(get_shell_integrations_dir)
 
 . $TOOL_SHELL_INTEGRATIONS_DIR/helpers.sh
 
+rm -f ~/.shell-debug-log.txt
 _hook_shell_integrations $TOOL_SHELL_INTEGRATIONS_DIR "env"

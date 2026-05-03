@@ -1,5 +1,5 @@
 if [ $current_shell = "zsh" ]; then
-    eval "$(atuin init zsh)"
+    eval "$(atuin init zsh --disable-ai)"
 elif [ $current_shell = "bash" ]; then
-    eval "$(atuin init bash)"
+    eval "$(atuin init bash --disable-ai)"
 fi

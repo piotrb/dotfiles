@@ -4,7 +4,7 @@ ohmyzsh/ohmyzsh path:lib/theme-and-appearance.zsh
 #mattmc3/zephyr path:plugins/color
 mattmc3/zephyr path:plugins/completion
 
-peterhurford/up.zsh
+# peterhurford/up.zsh
 rummik/zsh-tailf
 mattmc3/zman
 agkozak/zsh-z
@@ -14,13 +14,13 @@ ohmyzsh/ohmyzsh path:plugins/git
 valentinocossar/vscode
 
 zdharma-continuum/fast-syntax-highlighting kind:defer
-zsh-users/zsh-autosuggestions
-zsh-users/zsh-history-substring-search
+# zsh-users/zsh-autosuggestions
+# zsh-users/zsh-history-substring-search
 
-jkavan/terragrunt-oh-my-zsh-plugin
+# jkavan/terragrunt-oh-my-zsh-plugin
 
-ahmetb/kubectx path:completion kind:fpath
+# ahmetb/kubectx path:completion kind:fpath
 
 romkatv/powerlevel10k
 
-atuinsh/atuin
+# atuinsh/atuin
