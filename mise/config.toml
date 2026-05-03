@@ -1,0 +1,10 @@
+[tools]
+ruby = "3.4"
+gh = "2"
+python = "3.11"
+jq = "1"
+atuin = "18"
+direnv = "2"
+ripgrep = "15"
+git-lfs = "3"
+neovim = "0"

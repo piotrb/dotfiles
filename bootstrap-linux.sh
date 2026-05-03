@@ -7,7 +7,7 @@ if [ ! -e ~/.local/bin/mise ]; then
 	curl https://mise.run | sh
 fi
 
-eval "$(~/.local/bin/mise activate bash)"
+eval "$(~/.local/bin/mise activate --shims)"
 
 mise install gh
 
