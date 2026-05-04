@@ -30,15 +30,15 @@ else
 fi
 
 function _hook_shell_integration_single() {
-    INTEGRATION_DIR=$1
-    HOOK_TYPE=$2
+    local INTEGRATION_DIR=$1
+    local HOOK_TYPE=$2
 
-    if [ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.sh ]; then
-        . $INTEGRATION_DIR/hook.$HOOK_TYPE.sh
+    if [[ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.sh ]]; then
+        . "$INTEGRATION_DIR/hook.$HOOK_TYPE.sh"
     fi
 
-    if [ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.$current_shell ]; then
-        . $INTEGRATION_DIR/hook.$HOOK_TYPE.$current_shell
+    if [[ -f $INTEGRATION_DIR/hook.$HOOK_TYPE.$current_shell ]]; then
+        . "$INTEGRATION_DIR/hook.$HOOK_TYPE.$current_shell"
     fi
 }
 
@@ -48,23 +48,35 @@ function _debug() {
 
 function _detect_integration() {
     local dir=$1
-    local name=$(basename $dir)
+    local name
+    name=$(basename "$dir")
     local ec=0
     local method=""
 
     if [[ -f $dir/detect.command ]]; then
         method="command"
-        (( $+commands[${$(<$dir/detect.command)}] ))
+        local cmd
+        read -r cmd < "$dir/detect.command"
+        command -v "$cmd" >/dev/null 2>&1
         ec=$?
     elif [[ -f $dir/detect.path ]]; then
         method="path"
-        [[ -e ${$(<$dir/detect.path)} ]]
+        local path_to_check
+        read -r path_to_check < "$dir/detect.path"
+        path_to_check="${path_to_check/#\~/$HOME}"
+        [[ -e $path_to_check ]]
         ec=$?
     elif [[ -f $dir/detect.env ]]; then
-        method="path"
-        local var=${$(<$dir/detect.env)%%=*}
-        local val=${$(<$dir/detect.env)#*=}
-        [[ ${(P)var} == $val ]]
+        method="env"
+        local detect_content
+        read -r detect_content < "$dir/detect.env"
+        local var="${detect_content%%=*}"
+        local val="${detect_content#*=}"
+        if [[ -n $ZSH_VERSION ]]; then
+            [[ ${(P)var} == $val ]]
+        else
+            [[ ${!var} == $val ]]
+        fi
         ec=$?
     elif [[ -f $dir/detect.sh ]]; then
         method="detect.sh"
@@ -74,7 +86,8 @@ function _detect_integration() {
         return 0  # no detect = always enabled
     fi
 
-    local status_str=$( (( ec == 0 )) && echo "detected" || echo "not detected" )
+    local status_str
+    (( ec == 0 )) && status_str="detected" || status_str="not detected"
     _debug "$name (via $method) $status_str"
     return $ec
 }
@@ -82,31 +95,30 @@ function _detect_integration() {
 function _hook_shell_integration_detect() {
     local INTEGRATION_DIR=$1
     local HOOK_TYPE=$2
-    local INTEGRATION_NAME=$(basename $INTEGRATION_DIR)
+    local INTEGRATION_NAME
+    INTEGRATION_NAME=$(basename "$INTEGRATION_DIR")
 
-    _detect_integration $INTEGRATION_DIR || return 0
+    _detect_integration "$INTEGRATION_DIR" || return 0
 
     if [ "$HOOK_TYPE" = "env" ]; then
-        _hook_shell_integration_single $INTEGRATION_DIR $HOOK_TYPE
-        _mark_integration_hooked $INTEGRATION_NAME "env"
+        _hook_shell_integration_single "$INTEGRATION_DIR" "$HOOK_TYPE"
+        _mark_integration_hooked "$INTEGRATION_NAME" "env"
     fi
 
     if [ "$HOOK_TYPE" = "rc" ]; then
-        _hook_shell_integration_single $INTEGRATION_DIR $HOOK_TYPE
-        _mark_integration_hooked $INTEGRATION_NAME "rc"
+        _hook_shell_integration_single "$INTEGRATION_DIR" "$HOOK_TYPE"
+        _mark_integration_hooked "$INTEGRATION_NAME" "rc"
     fi
 
     if [ "$HOOK_TYPE" = "both" ]; then
-        # Hook env if not already hooked
-        if ! _is_integration_hooked $INTEGRATION_NAME "env"; then
-            _hook_shell_integration_single $INTEGRATION_DIR "env"
-            _mark_integration_hooked $INTEGRATION_NAME "env"
+        if ! _is_integration_hooked "$INTEGRATION_NAME" "env"; then
+            _hook_shell_integration_single "$INTEGRATION_DIR" "env"
+            _mark_integration_hooked "$INTEGRATION_NAME" "env"
         fi
-        
-        # Hook rc if not already hooked
-        if ! _is_integration_hooked $INTEGRATION_NAME "rc"; then
-            _hook_shell_integration_single $INTEGRATION_DIR "rc"
-            _mark_integration_hooked $INTEGRATION_NAME "rc"
+
+        if ! _is_integration_hooked "$INTEGRATION_NAME" "rc"; then
+            _hook_shell_integration_single "$INTEGRATION_DIR" "rc"
+            _mark_integration_hooked "$INTEGRATION_NAME" "rc"
         fi
     fi
 }
@@ -115,7 +127,9 @@ function _hook_shell_integrations() {
     local TOOL_SHELL_INTEGRATIONS_DIR=$1
     local HOOK_TYPE=$2
 
-    for i in $(find $TOOL_SHELL_INTEGRATIONS_DIR/* -type d); do
-        _hook_shell_integration_detect $i $HOOK_TYPE
+    local i
+    for i in "$TOOL_SHELL_INTEGRATIONS_DIR"/*/; do
+        [[ -d "$i" ]] || continue
+        _hook_shell_integration_detect "${i%/}" "$HOOK_TYPE"
     done
 }

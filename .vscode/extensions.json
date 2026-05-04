@@ -1,6 +1,6 @@
 {
   "recommendations": [
-    "bahramjoharshamshiri.hcl-lsp",
+    // "bahramjoharshamshiri.hcl-lsp",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "gamunu.opentofu",
@@ -19,8 +19,9 @@
     "ms-vscode.remote-explorer",
     "rexebin.f12-open-file",
     "tamasfe.even-better-toml",
-    "tsandall.opa",
-    "vehmloewff.custom-format"
+    // "tsandall.opa",
+    "vehmloewff.custom-format",
+    "anthropic.claude-code"
   ],
   "unwantedRecommendations": [
     "redhat.vscode-yaml"
