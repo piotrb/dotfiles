@@ -5,7 +5,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-zmodload zsh/zprof
+# zmodload zsh/zprof
 
 source ~/.antidote/antidote.zsh
 # Tell zephyr where to put the compdump and to use caching
@@ -35,4 +35,4 @@ if [ -d $HOME/.profile.rc.d ]; then
   unset i
 fi
 
-zprof >! ~/.zprof.txt
+# zprof >! ~/.zprof.txt
