@@ -57,7 +57,7 @@ function _detect_integration() {
         method="command"
         local cmd
         read -r cmd < "$dir/detect.command"
-        command -v "$cmd" >/dev/null 2>&1
+        command -v "$cmd" >/dev/null 2>/dev/null
         ec=$?
     elif [[ -f $dir/detect.path ]]; then
         method="path"
