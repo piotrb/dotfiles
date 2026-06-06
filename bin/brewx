@@ -1,2 +1,2 @@
 #!/bin/bash -l
-ruby -r /Users/piotr/Work/dotfiles/src/ruby/init.rb -e 'execute_command(:brewx, ARGV);' "$@"
+mise exec -- ruby -r /Users/piotr/Work/dotfiles/src/ruby/init.rb -e 'execute_command(:brewx, ARGV);' "$@"

@@ -1,1 +1,1 @@
-alias gradle=./gradlew
+# alias gradle=./gradlew
