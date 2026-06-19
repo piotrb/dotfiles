@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# Shell
+brew 'starship'
+
 # Git / GitHub
 brew 'tig'
 

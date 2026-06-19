@@ -21,6 +21,6 @@ zdharma-continuum/fast-syntax-highlighting kind:defer
 
 # ahmetb/kubectx path:completion kind:fpath
 
-romkatv/powerlevel10k
+# romkatv/powerlevel10k
 
 # atuinsh/atuin
