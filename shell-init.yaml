@@ -41,24 +41,6 @@ env:
     cmd:
       - eval: env -i /usr/libexec/path_helper -s
 
-  - name: dev env
-    cmd:
-      - |
-        export LC_CTYPE=en_US.UTF-8
-        export LC_ALL=en_US.UTF-8
-
-        export PATH="$HOME/bin:$PATH:/usr/local/bin:/usr/local/sbin"
-
-        ulimit -n 2048
-
-        alias fixtty="stty sane"
-
-        export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
-
-        export RBENV_ROOT=~/.rbenv
-
-        export XDG_CONFIG_HOME=$HOME/.config
-
   - name: ~/.local/bin on PATH
     cmd:
       - export PATH=~/.local/bin:$PATH
@@ -85,6 +67,22 @@ rc:
 # Tools — mirrors the old tool-shell-integrations/ folder. Order here drives the
 # order both env and rc sections render in.
 tools:
+  - name: dev
+    env:
+      - |
+        export LC_CTYPE=en_US.UTF-8
+        export LC_ALL=en_US.UTF-8
+
+        export PATH="$HOME/bin:$PATH:/usr/local/bin:/usr/local/sbin"
+
+        ulimit -n 2048
+
+        export XDG_CONFIG_HOME=$HOME/.config
+
+        export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+    rc:
+      - alias fixtty="stty sane"
+
   # Bake `brew shellenv` output at generation time (render: true) so we don't
   # fork brew at every shell start. Shell passed explicitly so the output
   # matches the target. Must run before mise.
@@ -105,7 +103,7 @@ tools:
     if:
       command: mise
     env:
-      - export MISE_GLOBAL_CONFIG_FILE=$DOTFILES_DIR/mise/config.toml
+      - export MISE_GLOBAL_CONFIG_FILE=${DOTFILES_DIR}/mise/config.toml
       - eval: mise activate zsh
         shell: zsh
       - eval: mise activate bash
@@ -249,6 +247,10 @@ tools:
   - name: k8s
     rc:
       - alias kubectx='kubectl ctx'
+
+  - name: ruby
+    env:
+      - export RBENV_ROOT=~/.rbenv
 
   - name: rust
     rc:

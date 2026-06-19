@@ -226,7 +226,7 @@ def _render_cmd_element(el, target_shell):
             f"shell-init.yaml: render command failed (exit {proc.returncode}): {command}\n"
             f"{proc.stderr.strip()}"
         )
-    return proc.stdout.rstrip("\n")
+    return f"# rendered: {command}\n" + proc.stdout.rstrip("\n")
 
 
 def _resolve_eval(ev):
