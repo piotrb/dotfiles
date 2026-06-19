@@ -1,1 +1,17 @@
 neofetch
+
+# >>> generated stubs (managed by src/make_stubs.rb) >>>
+/aws-sso-config-gen
+/branch-migrations
+/branch-rebase
+/brewx
+/bundlex
+/dd-metric-cardinality
+/df-compile
+/gh-notifications
+/project-name-generator
+/release-it-rb
+/ssm-session
+/tf-dep-scan
+/tg-lock-update
+# <<< generated stubs <<<

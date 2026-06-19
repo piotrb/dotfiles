@@ -21,13 +21,18 @@ See [src/node/CLAUDE.md](src/node/CLAUDE.md) for detailed structure and instruct
 - `src/python/` - Python scripts and utilities
 - `src/ruby/` - Ruby scripts and utilities
 
-## Quick Start: Adding a New Node/TypeScript Script
+## bin/ launcher stubs (ruby / node / python)
 
-1. Navigate to `src/node/`
-2. Create your TypeScript file in `src/your-script.ts`
-3. Create an executable wrapper in `bin/your-script`
-4. Run `./link.sh` to make it globally available
-5. See [src/node/CLAUDE.md](src/node/CLAUDE.md) for complete instructions
+Global commands for the `src/{ruby,node,python}` tools are **generated**, not
+hand-maintained. `src/make_stubs.rb` indexes all three folders, writes a
+launcher into `bin/<name>` for each command, links it into `~/bin`, and manages
+the generated-stub block in `bin/.gitignore` (the stubs bake absolute,
+per-machine paths, so they are never committed).
+
+To add a command: create the source file (`src/ruby/commands/<name>/main.rb`,
+`src/node/src/<name>.ts`, or `src/python/<name>.py`), then run
+`ruby src/make_stubs.rb` with the repo's direnv environment active (it reads
+`$VIRTUAL_ENV` for the python interpreter).
 
 ## Additional Context Files
 @.ai/shell-init-and-stuff.md

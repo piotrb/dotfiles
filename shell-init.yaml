@@ -1,0 +1,389 @@
+# Shell init configuration — the single source of truth for what bin/df-compile
+# renders into ~/.tsi/{env,rc}.{sh,zsh}.
+#
+# env vs rc:
+#   env  — Environment; sourced by login shells (also every zsh via zshenv)
+#   rc   — Runtime Config; sourced by interactive terminals
+#
+# Three top-level sections:
+#   env / rc : ordered lists of entries for that level. Each entry is either
+#              a script item or an anchor (see below).
+#   tools    : array of tool definitions (mirrors the old tool-integrations
+#              folder). Each tool has its own env/rc and one shared `if`.
+#
+# A script item / tool env-rc entry:
+#   name:  human label (section header). For tools it's inherited from the tool.
+#   if:    optional filters (all must pass; AND). Keys:
+#            shell:   zsh | bash | both (default)
+#            command / path / sh  — baked at generation time
+#            env: {VAR: value}    — RUNTIME: emits a shell `if` wrapper
+#   cmd / env / rc:  a list of commands. Each element is one of:
+#            "raw script"                       raw snippet (all shells)
+#            {cmd: "raw script", shell: zsh}    raw snippet, shell-scoped
+#            {eval: "command", shell: bash}     wrapped as eval "$(command)"
+#            {eval: {cmd: "command", render: true}}
+#                                               render=true runs it NOW and
+#                                               embeds the output verbatim
+#          (env/rc entries omit `name`/`if` — inherited from the tool.)
+#
+# Anchors (expand in place, in the env/rc lists):
+#   anchor: tools              — the `tools` array's env/rc sections
+#
+# Ordering is load-bearing (e.g. the macOS PATH backup must run after the tools
+# in env, and the restore must run first in rc).
+
+version: 1
+
+env:
+  - name: apple path_helper
+    if:
+      command: /usr/libexec/path_helper
+    cmd:
+      - eval: env -i /usr/libexec/path_helper -s
+
+  - name: dev env
+    cmd:
+      - |
+        export LC_CTYPE=en_US.UTF-8
+        export LC_ALL=en_US.UTF-8
+
+        export PATH="$HOME/bin:$PATH:/usr/local/bin:/usr/local/sbin"
+
+        ulimit -n 2048
+
+        alias fixtty="stty sane"
+
+        export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+
+        export RBENV_ROOT=~/.rbenv
+
+        export XDG_CONFIG_HOME=$HOME/.config
+
+  - name: ~/.local/bin on PATH
+    cmd:
+      - export PATH=~/.local/bin:$PATH
+
+  - anchor: tools
+
+  - name: backup PATH (macOS path_helper workaround)
+    cmd:
+      - |
+        # Apple nukes the whole PATH between zshenv and zshrc via /etc/zprofile,
+        # so we back it up here and restore it in rc.
+        export BACKUP_PATH=$PATH
+
+rc:
+  - name: restore PATH (macOS path_helper workaround)
+    cmd:
+      - |
+        # Restore the PATH captured in env, which /etc/zprofile clobbered.
+        export PATH=$BACKUP_PATH
+        unset BACKUP_PATH
+
+  - anchor: tools
+
+# Tools — mirrors the old tool-shell-integrations/ folder. Order here drives the
+# order both env and rc sections render in.
+tools:
+  # Bake `brew shellenv` output at generation time (render: true) so we don't
+  # fork brew at every shell start. Shell passed explicitly so the output
+  # matches the target. Must run before mise.
+  - name: homebrew shellenv
+    if:
+      command: /opt/homebrew/bin/brew
+    env:
+      - eval:
+          cmd: /opt/homebrew/bin/brew shellenv zsh
+          render: true
+        shell: zsh
+      - eval:
+          cmd: /opt/homebrew/bin/brew shellenv bash
+          render: true
+        shell: bash
+
+  - name: mise
+    if:
+      command: mise
+    env:
+      - export MISE_GLOBAL_CONFIG_FILE=$DOTFILES_DIR/mise/config.toml
+      - eval: mise activate zsh
+        shell: zsh
+      - eval: mise activate bash
+        shell: bash
+
+  - name: starship
+    if:
+      command: starship
+    rc:
+      - eval: starship init zsh
+        shell: zsh
+      - eval: starship init bash
+        shell: bash
+
+  - name: powerlevel10k
+    if:
+      shell: zsh
+      path: ~/.p10k.zsh
+    rc:
+      - source ~/.p10k.zsh
+
+  - name: atuin
+    if:
+      command: atuin
+    env:
+      - export PATH="$HOME/.atuin/bin:$PATH"
+    rc:
+      - eval: atuin init zsh --disable-ai
+        shell: zsh
+      - eval: atuin init bash --disable-ai
+        shell: bash
+
+  - name: aws
+    rc:
+      - export AWS_PAGER=""
+
+  - name: direnv
+    if:
+      command: direnv
+    env:
+      - cmd: |
+          if [ "$CURSOR_AGENT" = "1" ] || [ "$CLAUDECODE" = "1" ]; then
+              # Unset direnv vars before hooking to ensure clean state
+              unset DIRENV_DIFF DIRENV_DIR DIRENV_FILE DIRENV_WATCHES
+              old_direnv_config=$DIRENV_CONFIG
+              export DIRENV_CONFIG=$DOTFILES_DIR/config/direnv
+              eval "$(direnv hook zsh)"
+              cd .
+              # direnv status
+              export DIRENV_CONFIG=$old_direnv_config
+          fi
+        shell: zsh
+    rc:
+      # Previously used `emulate zsh -c "$(direnv hook zsh)"` as a defensive
+      # wrapper to reset zsh options before sourcing the hook output, but
+      # direnv's hook is standard zsh (adds a precmd function) and doesn't
+      # need it. Plain eval matches what direnv's own docs recommend.
+      - eval:
+          cmd: direnv hook zsh
+          render: true
+        shell: zsh
+      - eval:
+          cmd: direnv hook bash
+          render: true
+        shell: bash
+
+  - name: docker
+    rc:
+      - alias dc="docker-compose"
+
+  - name: git
+    rc:
+      - |
+        alias gco='git checkout'
+        alias gcp='git cherry-pick'
+
+        alias tigs='tig status'
+
+  - name: go-task
+    if:
+      command: task
+    rc:
+      - eval: task --completion zsh
+        shell: zsh
+      - eval: task --completion bash
+        shell: bash
+
+  - name: golang
+    env:
+      - |
+        export GOPATH=$HOME/.go
+        export PATH=$PATH:$GOPATH/bin
+
+  - name: granted
+    if:
+      command: granted
+    rc:
+      - |
+        alias assume=". assume"
+
+        alias aws_sso_login="granted sso login --sso-start-url https://janeapp.awsapps.com/start --sso-region us-east-1"
+
+  - name: janeseal
+    rc:
+      - export PATH=$PATH:~/Work/janeseal/bin
+
+  - name: kiro
+    if:
+      env:
+        TERM_PROGRAM: kiro
+    rc:
+      - cmd: . "$(kiro --locate-shell-integration-path zsh)"
+        shell: zsh
+      - cmd: . "$(kiro --locate-shell-integration-path bash)"
+        shell: bash
+
+  - name: kubectl-krew
+    if:
+      command: kubectl-krew
+    rc:
+      - export PATH="${PATH}:${HOME}/.krew/bin"
+
+  - name: node
+    env:
+      - |
+        export PATH=./node_modules/.bin:$PATH
+
+        export PNPM_HOME="$HOME/.pnpm"
+        export PATH="$PNPM_HOME:$PATH"
+
+  - name: pi
+    if:
+      path: ~/.local/share/pi-node/current/bin/pi
+    env:
+      - export PATH="$HOME/.local/share/pi-node/current/bin:$PATH"
+
+  - name: python
+    rc:
+      - export PATH=~/.python/bin:$PATH
+
+  - name: k8s
+    rc:
+      - alias kubectx='kubectl ctx'
+
+  - name: rust
+    rc:
+      - export PATH="$HOME/.cargo/bin:$PATH"
+
+  - name: spacelift
+    rc:
+      - |
+        function tf_sl_login() {
+          tofu login spacelift.io
+          direnv reload
+        }
+        alias tofu_sl_login=tf_sl_login
+        alias spacelift_tofu_login=tf_sl_login
+
+  - name: terraform
+    rc:
+      - |
+        function tf() {
+          cmd_args=( "$@" )
+          tf_cmd="${MUX_TF_BASE_CMD:-terraform}"
+          if [ -z "$MUX_TF_AUTH_WRAPPER" ]; then
+            $tf_cmd ${cmd_args[@]}
+          else
+            eval $MUX_TF_AUTH_WRAPPER $tf_cmd '${cmd_args[@]}'
+          fi
+        }
+
+  - name: vim
+    rc:
+      - |
+        if command -v nvim >/dev/null; then
+          alias vim="nvim"
+          alias vimdiff="nvim -d"
+        else
+          alias vimdiff="vim -d"
+        fi
+
+        export EDITOR=vim
+        export GIT_EDITOR=vim
+
+  - name: ssh
+    rc:
+      - |
+        SSH_AGENT_MODE=Auto
+
+        function which_s() {
+          env which $1 2>&1 >/dev/null && return 0 || return 1
+        }
+
+        # export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
+
+        function detect_mode() {
+          if [ -f ~/.ssh/config ]; then
+            if grep -q 'IdentityAgent "~/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"' ~/.ssh/config; then
+              SSH_AGENT_MODE=1Password
+              return
+            fi
+          fi
+
+          if which launchctl 2>&1 >/dev/null; then
+            if [ -n "$(launchctl getenv SSH_AUTH_SOCK)" ]; then
+              SSH_AGENT_MODE=launchctl
+              return
+            fi
+          fi
+
+          if [ -n "${SSH_AUTH_SOCK}" ]; then
+            SSH_AGENT_MODE=Existing
+            return
+          fi
+
+          if [ -e ~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh ] && [ -e /Applications/Secretive.app ]; then
+            SSH_AGENT_MODE=Secretive
+            return
+          fi
+
+          if which_s ssh-agent; then
+            if ssh-add -h 2>&1 | grep "in your keychain" -q; then
+              SSH_AGENT_MODE=SSH-MAC
+            else
+              SSH_AGENT_MODE=SSH
+            fi
+            return
+          fi
+
+          if which_s gpg-agent; then
+            SSH_AGENT_MODE=GPG
+            return
+          fi
+        }
+
+        if [ "$SSH_AGENT_MODE" == "Auto" ]; then
+          detect_mode
+        fi
+
+        case $SSH_AGENT_MODE in
+          GPG)
+            if ! `echo "BYE" | nc -U ~/.gnupg/S.gpg-agent > /dev/null`; then
+              eval $(gpg-agent --daemon)
+            fi
+
+            export GPG_TTY=$(tty)
+            export SSH_AUTH_SOCK=${HOME}/.gnupg/S.gpg-agent.ssh
+            ;;
+          Secretive)
+            if [ -e ~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh ]; then
+              export SSH_AUTH_SOCK=~/Library/Containers/com.maxgoedjen.Secretive.SecretAgent/Data/socket.ssh
+            fi
+            ;;
+          SSH)
+            if [ -z "$(pgrep ssh-agent)" ]; then
+              rm -rf /tmp/ssh-*
+              eval $(ssh-agent -s) > /dev/null
+            else
+              export SSH_AGENT_PID=$(pgrep ssh-agent)
+              export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.*)
+            fi
+
+            if [[ $(ssh-add -l | grep -v "no identities" | wc -l) -lt 1 ]]; then
+              ssh-add -k
+            fi
+            ;;
+          SSH-MAC)
+            if [[ $(ssh-add -l | grep -v "no identities" | wc -l) -lt 1 ]]; then
+              ssh-add -A
+            fi
+            ;;
+          1Password)
+            export SSH_AUTH_SOCK="$HOME/Library/Group Containers/2BUA8C4S2C.com.1password/t/agent.sock"
+            ;;
+          launchctl)
+            SSH_AUTH_SOCK="$(launchctl getenv SSH_AUTH_SOCK)"
+            export SSH_AUTH_SOCK="${SSH_AUTH_SOCK/#\~/$HOME}"
+            ;;
+          Existing)
+            ;;
+        esac

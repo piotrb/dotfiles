@@ -1,2 +1,0 @@
-#!/bin/bash
-ruby -r /Users/piotr/Work/dotfiles/src/ruby/init.rb -e 'execute_command(:branch_migrations, ARGV);' "$@"
