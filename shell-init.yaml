@@ -285,12 +285,13 @@ tools:
         if command -v nvim >/dev/null; then
           alias vim="nvim"
           alias vimdiff="nvim -d"
+          export EDITOR=nvim
+          export GIT_EDITOR=nvim
         else
           alias vimdiff="vim -d"
+          export EDITOR=vim
+          export GIT_EDITOR=vim
         fi
-
-        export EDITOR=vim
-        export GIT_EDITOR=vim
 
   - name: ssh
     rc:
