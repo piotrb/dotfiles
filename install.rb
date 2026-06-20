@@ -56,25 +56,25 @@ plan do
   link '~/.gemrc', from: 'gemrc'
   link '~/.default-gems', from: 'default-gems'
 
-  # vim
-  if_exe 'nvim' do
-    dir '~/.vim'
-    link '~/.local/share/nvim/site', from: '~/.vim'
-    link '~/.config/nvim/init.vim', from: '~/.vimrc'
-  end 
+#  # vim
+#  if_exe 'nvim' do
+#    dir '~/.vim'
+#    link '~/.local/share/nvim/site', from: '~/.vim'
+#    link '~/.config/nvim/init.vim', from: '~/.vimrc'
+#  end 
 
-  if_exe 'vim' do
-    dir '~/.vim/plug'
-    clone 'https://github.com/junegunn/vim-plug.git', '~/.vim/plug', update: true
-    link '~/.vim/autoload/plug.vim', from: '~/.vim/plug/plug.vim'
-
-    link '~/.vim/bundle.vim', from: 'vim/bundle.vim'
-    link '~/.vimrc', from: 'vimrc'
-    link '~/.gvimrc.after', from: 'gvimrc.after'
-    run "vim -en -u ~/.vim/bundle.vim -c PlugInstall -c qall",
-        state: 'vim-plugins',
-        state_globs: ['~/.vim/**/*', '~/.vimrc']
-  end
+#  if_exe 'vim' do
+#    dir '~/.vim/plug'
+#    clone 'https://github.com/junegunn/vim-plug.git', '~/.vim/plug', update: true
+#    link '~/.vim/autoload/plug.vim', from: '~/.vim/plug/plug.vim'
+#
+#    link '~/.vim/bundle.vim', from: 'vim/bundle.vim'
+#    link '~/.vimrc', from: 'vimrc'
+#    link '~/.gvimrc.after', from: 'gvimrc.after'
+#    run "vim -en -u ~/.vim/bundle.vim -c PlugInstall -c qall",
+#        state: 'vim-plugins',
+#        state_globs: ['~/.vim/**/*', '~/.vimrc']
+#  end
 
   # Git
   link '~/.gitmessage', from: 'gitmessage'
