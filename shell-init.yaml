@@ -118,13 +118,6 @@ tools:
       - eval: starship init bash
         shell: bash
 
-  - name: powerlevel10k
-    if:
-      shell: zsh
-      path: ~/.p10k.zsh
-    rc:
-      - source ~/.p10k.zsh
-
   - name: atuin
     if:
       command: atuin

@@ -36,8 +36,6 @@ plan do
   link '~/.zshrc', from: 'zshrc'
   link '~/.zshenv', from: 'zshenv'
 
-  link '~/.p10k.zsh', from: 'p10k.zsh'
-
   link '~/.config/atuin/config.toml', from: 'config/atuin/config.toml'
 
   # Shared shell init is pre-rendered from shell-init.yaml into ~/.tsi by
