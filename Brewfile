@@ -4,15 +4,16 @@
 brew 'tig'
 
 # AWS
-cask 'aws-vault'
+cask 'aws-vault-binary'
 brew 'awscli'
 brew 'aws-sso-util'
 
 # Dev Tools
 brew 'mise'
-brew 'tmux'
 brew 'devcontainer'
 brew 'dive'
+brew 'the_platinum_searcher'
+brew 'ugrep'
 
 # Ruby Deps
 brew 'libyaml'
@@ -21,7 +22,8 @@ brew 'libyaml'
 brew 'wget'
 
 # Spacelift
-brew 'spacelift-io/spacelift/spacectl'
+tap 'spacelift-io/spacelift'
+cask 'spacelift-io/spacelift/spacectl'
 
 # Depenedencies
 brew 'libpq'

@@ -29,6 +29,7 @@ class BrewPlanner
         requested << args[0]
       when :cask
         result << [type, *args] unless cask_installed?(args[0])
+        requested << args[0]
       else
         raise ArgumentError, "unhandled entry: #{[type, *args].inspect}"
       end
@@ -68,7 +69,7 @@ class BrewPlanner
   end
 
   def all_casks
-    @all_casks ||= `HOMEBREW_NO_AUTO_UPDATE=1 brew list --cask`.strip.split("\n")
+    @all_casks ||= `HOMEBREW_NO_AUTO_UPDATE=1 brew list --cask --full-name`.strip.split("\n")
   end
 
   def tap_installed?(tap_name)

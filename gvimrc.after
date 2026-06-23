@@ -1,3 +1,0 @@
-set guioptions=egmrt
-set guifont=Menlo:h12
-let $SPEC_OPTS = ''
