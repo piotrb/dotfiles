@@ -108,6 +108,7 @@ tools:
         shell: zsh
       - eval: mise activate bash
         shell: bash
+      - export HOMEBREW_GH_PATH=`which gh`
 
   - name: starship
     if:
