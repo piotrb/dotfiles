@@ -59,18 +59,18 @@ end
 class PlanMaker
   attr_reader :plan
 
-  def self.plan(&block)
-    puts 'Preparing plan ...'
+  def self.plan(label = nil, &block)
+    puts label ? "Preparing plan [#{label}] ..." : 'Preparing plan ...'
 
     interface = PlanMaker.new
     interface.exec(&block)
 
     if interface.empty?
-      puts 'Plan is empty. Nothing to do.'
+      puts label ? "Plan [#{label}] is empty. Nothing to do." : 'Plan is empty. Nothing to do.'
       return
     end
 
-    interface.print
+    interface.print(label)
 
     unless ENV['NON_INTERACTIVE']
       puts 'Are you sure you want to apply these changes? (only "yes" will be accepted)'
@@ -100,7 +100,8 @@ class PlanMaker
     plan.empty?
   end
 
-  def print
+  def print(label = nil)
+    puts "\n=== #{label} ===" if label
     max_module = plan.map { |line| line.mod_name.length }.max
     plan.each do |proxy|
       prefix = format('%*s: ', max_module, proxy.mod_name)

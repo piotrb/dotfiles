@@ -6,8 +6,8 @@ Dir["#{__dir__}/modules/*.rb"].each do |fn|
   require_relative fn
 end
 
-def plan(&block)
-  PlanMaker.plan(&block)
+def plan(label = nil, &block)
+  PlanMaker.plan(label, &block)
 end
 
 def if_exe(exe)
