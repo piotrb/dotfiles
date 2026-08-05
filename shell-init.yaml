@@ -232,7 +232,8 @@ tools:
     if:
       path: ~/.local/share/pi-node/current/bin/pi
     env:
-      - export PATH="$HOME/.local/share/pi-node/current/bin:$PATH"
+      - alias pi="${HOME}/.local/share/pi-node/current/bin/pi"
+#      - export path="$home/.local/share/pi-node/current/bin:$path"
 
   - name: python
     rc:
@@ -294,6 +295,37 @@ tools:
 
         function which_s() {
           env which $1 2>&1 >/dev/null && return 0 || return 1
+        }
+
+        # true if $1 is a socket some ssh-agent is actually answering on.
+        # ssh-add exit codes: 0 = has keys, 1 = alive but no identities, 2 = dead/unreachable.
+        function _ssh_agent_alive() {
+          [ -n "$1" ] && [ -S "$1" ] || return 1
+          SSH_AUTH_SOCK="$1" ssh-add -l >/dev/null 2>&1
+          [ $? -ne 2 ]
+        }
+
+        # forwarded-agent sockets from every ssh session on this box, newest first
+        function _ssh_agent_candidates() {
+          ls -t /tmp/ssh-*/agent.* 2>/dev/null
+        }
+
+        # (re)point ~/.ssh/ssh_auth_sock at a live forwarded agent, skipping $1 if given.
+        # run this by hand any time the symlink dies underneath you (e.g. the session
+        # it pointed at closed). picks the newest alive candidate other than $1 --
+        # tune the ordering in _ssh_agent_candidates if you'd rather prefer differently.
+        function ssh-agent-relink() {
+          local exclude="$1" sock
+          for sock in $(_ssh_agent_candidates); do
+            [ "$sock" = "$exclude" ] && continue
+            if _ssh_agent_alive "$sock"; then
+              ln -sf "$sock" ~/.ssh/ssh_auth_sock
+              echo "ssh-agent-relink: ~/.ssh/ssh_auth_sock -> $sock"
+              return 0
+            fi
+          done
+          echo "ssh-agent-relink: no live forwarded ssh-agent found" >&2
+          return 1
         }
 
         # export SSH_AUTH_SOCK=~/Library/Group\ Containers/2BUA8C4S2C.com.1password/t/agent.sock
@@ -382,5 +414,27 @@ tools:
             export SSH_AUTH_SOCK="${SSH_AUTH_SOCK/#\~/$HOME}"
             ;;
           Existing)
+            # this session's own forwarded socket, before SSH_AUTH_SOCK gets clobbered below
+            _SSH_AGENT_OWN_SOCK="$SSH_AUTH_SOCK"
+
+            if [ -h ~/.ssh/ssh_auth_sock ] && _ssh_agent_alive "$(readlink ~/.ssh/ssh_auth_sock)"; then
+              : # symlink already points at a live agent -- leave it, don't jump to
+                # "newest session" just because a new shell/pane happened to start
+            elif _ssh_agent_alive "$_SSH_AGENT_OWN_SOCK"; then
+              ln -sf "$_SSH_AGENT_OWN_SOCK" ~/.ssh/ssh_auth_sock
+            else
+              ssh-agent-relink >/dev/null 2>&1
+            fi
+            export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
+
+            # on a clean shell exit, hand the symlink off to another live session
+            # instead of leaving it pointed at the socket we're about to lose
+            if [ -n "$ZSH_VERSION" ]; then
+              function zshexit() {
+                ssh-agent-relink "$_SSH_AGENT_OWN_SOCK" >/dev/null 2>&1
+              }
+            elif [ -n "$BASH_VERSION" ]; then
+              trap 'ssh-agent-relink "$_SSH_AGENT_OWN_SOCK" >/dev/null 2>&1' EXIT
+            fi
             ;;
         esac
