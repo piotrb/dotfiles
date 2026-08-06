@@ -9,7 +9,7 @@ rummik/zsh-tailf
 mattmc3/zman
 agkozak/zsh-z
 
-ohmyzsh/ohmyzsh path:plugins/git
+#ohmyzsh/ohmyzsh path:plugins/git
 
 valentinocossar/vscode
 

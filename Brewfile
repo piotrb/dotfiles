@@ -29,3 +29,9 @@ cask 'spacelift-io/spacelift/spacectl'
 brew 'libpq'
 
 cask 'notunes'
+
+brew 'git' # newer than the osx one
+
+# Security Tools for work
+
+brew 'wizcli'
