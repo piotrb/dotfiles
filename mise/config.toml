@@ -1,5 +1,5 @@
 [settings]
-ruby.compile=false
+ruby.compile = false
 
 [tools]
 ruby = "3.4"
@@ -20,3 +20,5 @@ rtk = "0"
 bfs = "4"
 tmux = "3"
 bun = "latest"
+rust = "latest"
+"vfox:piotrb/vfox-tig" = "latest"

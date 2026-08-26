@@ -288,6 +288,13 @@ tools:
           export GIT_EDITOR=vim
         fi
 
+  - name: dive
+    if:
+      command: docker
+    rc:
+      - |
+        alias dive="docker run -ti --rm  -v /var/run/docker.sock:/var/run/docker.sock docker.io/wagoodman/dive"
+
   - name: ssh
     rc:
       - |
