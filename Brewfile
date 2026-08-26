@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-# Git / GitHub
-brew 'tig'
-
 # AWS
 cask 'aws-vault-binary'
 brew 'awscli'
