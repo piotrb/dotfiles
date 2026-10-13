@@ -312,9 +312,12 @@ tools:
           [ $? -ne 2 ]
         }
 
-        # forwarded-agent sockets from every ssh session on this box, newest first
+        # forwarded-agent sockets from every ssh session on this box, newest first.
+        # OpenSSH >= 10.1 puts them in ~/.ssh/agent/s.*.sshd.*; older ones in /tmp/ssh-*.
         function _ssh_agent_candidates() {
-          ls -t /tmp/ssh-*/agent.* 2>/dev/null
+          [ -n "$ZSH_VERSION" ] && setopt localoptions nullglob
+          local socks=( ~/.ssh/agent/s.*.sshd.* /tmp/ssh-*/agent.* )
+          [ ${#socks[@]} -gt 0 ] && ls -td "${socks[@]}" 2>/dev/null
         }
 
         # (re)point ~/.ssh/ssh_auth_sock at a live forwarded agent, skipping $1 if given.
@@ -396,17 +399,26 @@ tools:
             fi
             ;;
           SSH)
-            if [ -z "$(pgrep ssh-agent)" ]; then
-              rm -rf /tmp/ssh-*
-              eval $(ssh-agent -s) > /dev/null
-            else
-              export SSH_AGENT_PID=$(pgrep ssh-agent)
-              export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.*)
+            # no agent handed to us (e.g. new herdr panes): reuse the shared
+            # forwarded-agent symlink instead of spawning a fresh ssh-agent
+            if ! _ssh_agent_alive "$(readlink ~/.ssh/ssh_auth_sock)"; then
+              ssh-agent-relink >/dev/null 2>&1
             fi
+            [ -h ~/.ssh/ssh_auth_sock ] && export SSH_AUTH_SOCK=~/.ssh/ssh_auth_sock
 
-            if [[ $(ssh-add -l | grep -v "no identities" | wc -l) -lt 1 ]]; then
-              ssh-add -k
-            fi
+            # disabled: spawning a fresh ssh-agent (and `rm -rf /tmp/ssh-*`) clobbers
+            # forwarded/multiplexer agent sockets (e.g. herdr) that live elsewhere.
+            # if [ -z "$(pgrep ssh-agent)" ]; then
+            #   rm -rf /tmp/ssh-*
+            #   eval $(ssh-agent -s) > /dev/null
+            # else
+            #   export SSH_AGENT_PID=$(pgrep ssh-agent)
+            #   export SSH_AUTH_SOCK=$(find /tmp/ssh-* -name agent.*)
+            # fi
+            #
+            # if [[ $(ssh-add -l | grep -v "no identities" | wc -l) -lt 1 ]]; then
+            #   ssh-add -k
+            # fi
             ;;
           SSH-MAC)
             if [[ $(ssh-add -l | grep -v "no identities" | wc -l) -lt 1 ]]; then
