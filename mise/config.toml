@@ -1,5 +1,6 @@
 [settings]
 ruby.compile = false
+idiomatic_version_file_enable_tools = ["ruby", "node"]
 
 [tools]
 ruby = "3.4"
