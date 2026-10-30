@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 # AWS
-cask 'aws-vault-binary'
 brew 'awscli'
 brew 'aws-sso-util'
 
@@ -31,4 +30,9 @@ brew 'git' # newer than the osx one
 
 # Security Tools for work
 
-brew 'wizcli'
+cask 'wizcli'
+
+# Other Jane specific stuff
+
+tap 'janeapp/shipyard'
+brew 'janeapp/shipyard/shipyard'
